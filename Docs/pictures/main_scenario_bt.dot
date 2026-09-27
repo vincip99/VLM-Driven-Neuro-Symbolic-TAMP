@@ -1,0 +1,144 @@
+digraph pastafarianism {
+	graph [fontname=Helvetica,
+		nodesep=0.14,
+		ordering=out,
+		ranksep=0.38
+	];
+	node [fontcolor=black,
+		fontname="Helvetica-Bold",
+		fontsize=12.5,
+		penwidth=1.4
+	];
+	edge [arrowsize=0.75,
+		fontname=Helvetica,
+		penwidth=1.4
+	];
+	node_df761d85_c32d_462d_bab5_13407da78142	[fillcolor="#b2ebf2",
+		label="? goal_guarded_root\n(Selector)",
+		shape=box,
+		style="filled,rounded"];
+	node_592b5578_9e21_419b_ba97_93e4533b63b6	[fillcolor="#c8e6c9",
+		fontcolor="#1b5e20",
+		label="GoalCheck_Pre\n[Pre-Condition]",
+		shape=ellipse,
+		style=filled];
+	node_df761d85_c32d_462d_bab5_13407da78142 -> node_592b5578_9e21_419b_ba97_93e4533b63b6	[minlen=1];
+	node_37caa7af_a94d_40b7_b96a_9aaa602c0ba3	[fillcolor="#e1bee7",
+		fontcolor="#4a148c",
+		label="retry_until_goal\n[Retry <= 10]",
+		shape=box,
+		style="filled,rounded"];
+	node_df761d85_c32d_462d_bab5_13407da78142 -> node_37caa7af_a94d_40b7_b96a_9aaa602c0ba3;
+	node_adaabc93_b760_4c7e_a5c9_db29337e67a0	[fillcolor="#ffe0b2",
+		label="-> attempt\n(Sequence)",
+		shape=box,
+		style="filled,rounded"];
+	node_37caa7af_a94d_40b7_b96a_9aaa602c0ba3 -> node_adaabc93_b760_4c7e_a5c9_db29337e67a0;
+	node_523d3097_ecdd_4554_8069_8456ca078c87	[fillcolor="#ffcc80",
+		label="-> pddl_plan_sequence\n(Sequence Memory)",
+		shape=box,
+		style="filled,rounded"];
+	node_adaabc93_b760_4c7e_a5c9_db29337e67a0 -> node_523d3097_ecdd_4554_8069_8456ca078c87;
+	node_0224783e_5ca8_418b_ade4_1c9f9e6f3435	[fillcolor="#c8e6c9",
+		fontcolor="#1b5e20",
+		label="GoalCheck_Post\n[Post-Condition]",
+		shape=ellipse,
+		style=filled];
+	node_adaabc93_b760_4c7e_a5c9_db29337e67a0 -> node_0224783e_5ca8_418b_ade4_1c9f9e6f3435	[minlen=1];
+	node_ec8e5fe2_5a26_4ad2_85df_362dcb15bfa7	[fillcolor="#ffe0b2",
+		label="-> PickSeq\n(yellow_cube)",
+		shape=box,
+		style="filled,rounded"];
+	node_523d3097_ecdd_4554_8069_8456ca078c87 -> node_ec8e5fe2_5a26_4ad2_85df_362dcb15bfa7;
+	node_d55b5cfe_0932_4bd0_a80e_e93c5d4ba681	[fillcolor="#ffe0b2",
+		label="-> PlaceSeq\n(yellow_cube -> pot)",
+		shape=box,
+		style="filled,rounded"];
+	node_523d3097_ecdd_4554_8069_8456ca078c87 -> node_d55b5cfe_0932_4bd0_a80e_e93c5d4ba681;
+	node_62cd54c8_dff9_4697_bc49_9b975bb57cf2	[fillcolor="#ffe0b2",
+		label="-> PickSeq\n(red_can)",
+		shape=box,
+		style="filled,rounded"];
+	node_523d3097_ecdd_4554_8069_8456ca078c87 -> node_62cd54c8_dff9_4697_bc49_9b975bb57cf2;
+	node_4646ff35_5db9_45cd_8c4a_ac0677a89d7d	[fillcolor="#ffe0b2",
+		label="-> PlaceSeq\n(red_can -> sorting_bin)",
+		shape=box,
+		style="filled,rounded"];
+	node_523d3097_ecdd_4554_8069_8456ca078c87 -> node_4646ff35_5db9_45cd_8c4a_ac0677a89d7d;
+	node_fbb35978_3562_49e5_9ac2_c46f300a9d19	[fillcolor="#ffe0b2",
+		label="-> PickSeq\n(blue_can)",
+		shape=box,
+		style="filled,rounded"];
+	node_523d3097_ecdd_4554_8069_8456ca078c87 -> node_fbb35978_3562_49e5_9ac2_c46f300a9d19;
+	node_6a9abb87_bdf7_4470_b977_1b1bfa31fa45	[fillcolor="#ffe0b2",
+		label="-> PlaceSeq\n(blue_can -> sorting_bin)",
+		shape=box,
+		style="filled,rounded"];
+	node_523d3097_ecdd_4554_8069_8456ca078c87 -> node_6a9abb87_bdf7_4470_b977_1b1bfa31fa45;
+	node_227fab75_4abd_4c01_8151_907a33a0b3f1	[fillcolor="#eeeeee",
+		label="PickUp\n(yellow_cube)",
+		shape=ellipse,
+		style=filled];
+	node_ec8e5fe2_5a26_4ad2_85df_362dcb15bfa7 -> node_227fab75_4abd_4c01_8151_907a33a0b3f1	[minlen=1];
+	node_c5a24bdf_7996_4672_824a_f1c26296e993	[fillcolor="#c8e6c9",
+		fontcolor="#1b5e20",
+		label="Holding\n(yellow_cube)",
+		shape=ellipse,
+		style=filled];
+	node_ec8e5fe2_5a26_4ad2_85df_362dcb15bfa7 -> node_c5a24bdf_7996_4672_824a_f1c26296e993	[minlen=2];
+	node_6f7f73b5_6518_4d24_8ac8_685fb9a8de62	[fillcolor="#eeeeee",
+		label="PlaceInBin\n(yellow_cube -> pot)",
+		shape=ellipse,
+		style=filled];
+	node_d55b5cfe_0932_4bd0_a80e_e93c5d4ba681 -> node_6f7f73b5_6518_4d24_8ac8_685fb9a8de62	[minlen=1];
+	node_752adf48_afed_462f_bc54_2b1564a7b5e0	[fillcolor="#c8e6c9",
+		fontcolor="#1b5e20",
+		label="On\n(yellow_cube -> pot)",
+		shape=ellipse,
+		style=filled];
+	node_d55b5cfe_0932_4bd0_a80e_e93c5d4ba681 -> node_752adf48_afed_462f_bc54_2b1564a7b5e0	[minlen=2];
+	node_9b0be15d_82e1_48b5_ba53_54d6515689f7	[fillcolor="#eeeeee",
+		label="PickUp\n(red_can)",
+		shape=ellipse,
+		style=filled];
+	node_62cd54c8_dff9_4697_bc49_9b975bb57cf2 -> node_9b0be15d_82e1_48b5_ba53_54d6515689f7	[minlen=1];
+	node_7d588e80_fb05_4567_91e7_fe9e4b16c3f8	[fillcolor="#c8e6c9",
+		fontcolor="#1b5e20",
+		label="Holding\n(red_can)",
+		shape=ellipse,
+		style=filled];
+	node_62cd54c8_dff9_4697_bc49_9b975bb57cf2 -> node_7d588e80_fb05_4567_91e7_fe9e4b16c3f8	[minlen=2];
+	node_66109f90_49da_4550_b13c_56e511adb027	[fillcolor="#eeeeee",
+		label="PlaceInBin\n(red_can -> sorting_bin)",
+		shape=ellipse,
+		style=filled];
+	node_4646ff35_5db9_45cd_8c4a_ac0677a89d7d -> node_66109f90_49da_4550_b13c_56e511adb027	[minlen=1];
+	node_ee7d67c4_f380_4c55_89c9_6ab59e646ebf	[fillcolor="#c8e6c9",
+		fontcolor="#1b5e20",
+		label="On\n(red_can -> sorting_bin)",
+		shape=ellipse,
+		style=filled];
+	node_4646ff35_5db9_45cd_8c4a_ac0677a89d7d -> node_ee7d67c4_f380_4c55_89c9_6ab59e646ebf	[minlen=2];
+	node_41a4605c_f895_4ad7_8dd7_be1a5e9e8e93	[fillcolor="#eeeeee",
+		label="PickUp\n(blue_can)",
+		shape=ellipse,
+		style=filled];
+	node_fbb35978_3562_49e5_9ac2_c46f300a9d19 -> node_41a4605c_f895_4ad7_8dd7_be1a5e9e8e93	[minlen=1];
+	node_952eba21_1658_4a83_b8bd_df6c32e7161e	[fillcolor="#c8e6c9",
+		fontcolor="#1b5e20",
+		label="Holding\n(blue_can)",
+		shape=ellipse,
+		style=filled];
+	node_fbb35978_3562_49e5_9ac2_c46f300a9d19 -> node_952eba21_1658_4a83_b8bd_df6c32e7161e	[minlen=2];
+	node_d481f064_5fb1_4a02_a4b7_405f919629fc	[fillcolor="#eeeeee",
+		label="PlaceInBin\n(blue_can -> sorting_bin)",
+		shape=ellipse,
+		style=filled];
+	node_6a9abb87_bdf7_4470_b977_1b1bfa31fa45 -> node_d481f064_5fb1_4a02_a4b7_405f919629fc	[minlen=1];
+	node_8bb37a52_902d_4b00_bf0f_b1fbb9a591fa	[fillcolor="#c8e6c9",
+		fontcolor="#1b5e20",
+		label="On\n(blue_can -> sorting_bin)",
+		shape=ellipse,
+		style=filled];
+	node_6a9abb87_bdf7_4470_b977_1b1bfa31fa45 -> node_8bb37a52_902d_4b00_bf0f_b1fbb9a591fa	[minlen=2];
+}

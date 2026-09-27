@@ -4,6 +4,11 @@ from .builder import (
     wrap_with_goal_check,
     render_bt,
 )
+from .utils import (
+    render_presentation_bt,
+    generate_presentation_dot,
+    export_presentation_bt,
+)
 from .skills import SKILL_REGISTRY, Skill
 from .conditions import (
     CONDITION_REGISTRY,

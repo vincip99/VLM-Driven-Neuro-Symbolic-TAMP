@@ -156,6 +156,12 @@ class RobosuiteEnvAdapter:
     def reset(self) -> dict:
         obs = self._env.reset()
         self._refresh_body_ids()
+        self._init_obj_z = {}
+        for name, bid in self._obj_body_ids.items():
+            try:
+                self._init_obj_z[name] = float(self._base_env.sim.data.body_xpos[bid][2])
+            except Exception:
+                pass
         return obs
 
     def get_obs(self) -> dict:
@@ -180,8 +186,29 @@ class RobosuiteEnvAdapter:
         body_id = self._resolve_body_id(obj_name)
         if body_id is None:
             return False
-        obj_z = self._base_env.sim.data.body_xpos[body_id][2]
-        return bool(obj_z > self._table_height + _LIFT_MARGIN)
+
+        # An object already resting inside a target container is placed, not held by the gripper
+        if self.is_in_bin(obj_name, "bin") or self.is_in_bin(obj_name, "pot") or self.is_in_bin(obj_name, "sorting_bin"):
+            return False
+
+        obj_pos = np.array(self._base_env.sim.data.body_xpos[body_id])
+
+        # Verify robot gripper proximity (< 0.12m)
+        try:
+            eef_site_id = self._base_env.robots[0].eef_site_id["right"]
+            eef_pos = self._base_env.sim.data.site_xpos[eef_site_id]
+            if np.linalg.norm(eef_pos - obj_pos) > 0.12:
+                return False
+        except Exception:
+            pass
+
+        # Verify object has been lifted above its resting height
+        init_z = getattr(self, "_init_obj_z", {}).get(obj_name, None)
+        if init_z is not None:
+            return bool(obj_pos[2] > init_z + 0.02)
+
+        margin = 0.045 if "can" in str(obj_name).lower() or "cylinder" in str(obj_name).lower() else _LIFT_MARGIN
+        return bool(obj_pos[2] > self._table_height + margin)
 
     def is_in_bin(self, obj_name: str, bin_name: str = "bin") -> bool:
         """

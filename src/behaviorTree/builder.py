@@ -7,9 +7,10 @@ from __future__ import annotations
 import os
 from typing import Any, List, Optional, Union
 import py_trees
+import subprocess
 
 from .skills import SKILL_REGISTRY
-from .conditions import CONDITION_REGISTRY, PDDLGoalCheck
+from .conditions import CONDITION_REGISTRY, PDDLGoalCheck, PDDLCondition
 
 
 # ---------------------------------------------------------------------------
@@ -70,7 +71,20 @@ def pddl_plan_to_sequence(plan: Union[str, List[str]], env=None) -> py_trees.com
             skill_cls = SKILL_REGISTRY.get("pick", SKILL_REGISTRY.get("MotionPlanningPickUp"))
             if not skill_cls:
                 raise KeyError("Action 'pick' not found in SKILL_REGISTRY")
-            sequence.add_child(skill_cls(name=f"PickUp({obj})", args={"object": obj}, env=env))
+            # Build sub‑sequence: action → positive post‑condition
+            pick_seq = py_trees.composites.Sequence(name=f"PickSeq({obj})", memory=True)
+            # Action node
+            pick_node = skill_cls(name=f"PickUp({obj})", args={"object": obj}, env=env)
+            pick_seq.add_child(pick_node)
+            # Post‑condition node: verifies successful physical grasp and lift
+            post_node = PDDLCondition(
+                name=f"Holding({obj})",
+                args={"predicate": "holding", "args": [obj]},
+                env=env,
+            )
+            pick_seq.add_child(post_node)
+            # Add the sub‑sequence to the main plan
+            sequence.add_child(pick_seq)
 
         elif action == "place":
             obj = args[0] if args else ""
@@ -78,9 +92,24 @@ def pddl_plan_to_sequence(plan: Union[str, List[str]], env=None) -> py_trees.com
             skill_cls = SKILL_REGISTRY.get("place", SKILL_REGISTRY.get("MotionPlanningPlaceInBin"))
             if not skill_cls:
                 raise KeyError("Action 'place' not found in SKILL_REGISTRY")
-            sequence.add_child(
-                skill_cls(name=f"PlaceInBin({obj}->{target})", args={"object": obj, "asset": target}, env=env)
+            # Build sub‑sequence: action → positive post‑condition
+            place_seq = py_trees.composites.Sequence(name=f"PlaceSeq({obj}->{target})", memory=True)
+            # Action node
+            place_node = skill_cls(
+                name=f"PlaceInBin({obj}->{target})",
+                args={"object": obj, "asset": target},
+                env=env,
             )
+            place_seq.add_child(place_node)
+            # Post‑condition node: verifies object is resting inside target container
+            post_node = PDDLCondition(
+                name=f"On({obj}->{target})",
+                args={"predicate": "on", "args": [obj, target]},
+                env=env,
+            )
+            place_seq.add_child(post_node)
+            # Add the sub‑sequence to the main plan
+            sequence.add_child(place_seq)
 
         elif action in SKILL_REGISTRY:
             skill_cls = SKILL_REGISTRY[action]
@@ -142,14 +171,17 @@ def render_bt(
     root: py_trees.behaviour.Behaviour,
     name: str = "behavior_tree",
     target_dir: str = os.path.join("Docs", "pictures"),
+    export_presentation: bool = True,
 ) -> str:
     """
-    Render a py_trees Behavior Tree as a Graphviz diagram (.dot, .png, .svg).
+    Render a py_trees Behavior Tree as a Graphviz diagram (.dot, .png, .svg, .pdf),
+    and automatically generate a presentation-friendly version (behavior_tree_main_scenario).
 
     Args:
         root: Root node of the Behavior Tree.
         name: Base filename without extension.
         target_dir: Directory where diagram files are saved.
+        export_presentation: Whether to also generate presentation-styled diagrams.
 
     Returns:
         str: Absolute path to the generated PNG diagram.
@@ -160,8 +192,23 @@ def render_bt(
         name=name,
         target_directory=target_dir,
     )
+    dot_path = os.path.abspath(os.path.join(target_dir, f"{name}.dot"))
     png_path = os.path.abspath(os.path.join(target_dir, f"{name}.png"))
+    pdf_path = os.path.abspath(os.path.join(target_dir, f"{name}.pdf"))
+
+    try:
+        subprocess.run(["dot", "-Tpdf", dot_path, "-o", pdf_path], check=True)
+        print(f"[BehaviorTree] Saved PDF diagram to: {pdf_path}")
+    except Exception as e:
+        print(f"[BehaviorTree] Failed to generate PDF: {e}")
     print(f"[BehaviorTree] Saved graphical tree diagram to: {png_path}")
+
+    # Generate presentation-friendly version (named behavior_tree_main_scenario)
+    if export_presentation:
+        from .utils import render_presentation_bt
+        pres_name = "behavior_tree_main_scenario" if name in ["behavior_tree", "main_scenario_bt"] else f"{name}_main_scenario"
+        render_presentation_bt(root=root, name=pres_name, target_dir=target_dir)
+
     return png_path
 
 
@@ -175,7 +222,7 @@ def build_bt_from_pddl_plan(
     vlm_query_fn: Optional[Any] = None,
     goal_situation: Optional[str] = None,
     num_attempts: int = 10,
-    wrap_goal_check: bool = False,
+    wrap_goal_check: bool = True,
     render: bool = False,
     render_name: str = "behavior_tree",
     render_dir: str = os.path.join("Docs", "pictures"),

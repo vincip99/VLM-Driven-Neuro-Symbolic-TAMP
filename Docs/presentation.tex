@@ -651,8 +651,8 @@ While domain physics $\mathcal{D}$ are fixed offline, the planning problem $\mat
                 \footnotesize
                 \begin{itemize}
                     \setlength\itemsep{0.3em}
-                    \item \textbf{Selector:} A fallback node that executes the first child that does not fail. Returns \textbf{Success} or \textbf{Running}.
-                    \item \textbf{Sequence:} Executes children in order until one succeeds. Returns \textbf{Failure} or \textbf{Running} immediately if a child fails or is still running.
+                    \item \textbf{Selector:} A fallback node returns \textbf{Success} if at least one child do not fail. If every child fail return \textbf{Failure}. Otherwise \textbf{Running}.
+                    \item \textbf{Sequence:} Executes children in order, returning success if everyone succeeds. Returns \textbf{Failure} or \textbf{Running} immediately if a child fails or is still running.
                 \end{itemize}
             \end{beamercolorbox}
         \end{column}
@@ -883,7 +883,7 @@ The executive layer instantiates action skills and condition monitors as modular
                 \setlength\itemsep{0.12em}
                 \item \textbf{Base Architecture (\texttt{Skill}):}
                 \newline Subclasses \texttt{Behaviour}. Non-blocking 20\,Hz tick: returns \texttt{RUNNING}, \texttt{SUCCESS} on \texttt{is\_done()}, or \texttt{FAILURE} on timeout. Emits 7-DOF OSC commands $a \in \mathbb{R}^7$.
-                \item \textbf{Pick-Up Primitive (\texttt{MotionPlanningPickUp}):}
+                \item \textbf{Pick Primitive (\texttt{MotionPlanningPickUp}):}
                 \newline 4-stage FSM: \texttt{follow\_path} (RRT to hover) $\to$ \texttt{descend} (linear approach) $\to$ \texttt{grasp} (finger closure) $\to$ \texttt{lift} (clearance).
                 \newline $\blacktriangleright$ \textit{Hybrid PPO Variant:} Replaces descent/grasp with learned RL policy.
                 \item \textbf{Place Primitive (\texttt{MotionPlanningPlaceInBin}):}
@@ -896,12 +896,12 @@ The executive layer instantiates action skills and condition monitors as modular
         \begin{block}{Condition Nodes (\texttt{conditions.py})}
             \begin{itemize}\scriptsize
                 \setlength\itemsep{0.12em}
-                \item \textbf{Physical Grounding (\texttt{conditions.py}):}
-                \newline Evaluates simulator state at zero latency:
+                \item \textbf{Post Conditions Checking(\texttt{conditions.py}):}
+                \newline Evaluates actions $add(s)$ effects at zero latency:
                 \newline $\bullet$ \texttt{on(?x, ?y)} $\leftrightarrow$ \texttt{env.is\_in\_bin(obj, target)}
                 \newline $\bullet$ \texttt{holding(?x)} $\leftrightarrow$ \texttt{env.is\_grasped(obj)}
                 \newline $\bullet$ \texttt{on-table(?x)} $\leftrightarrow$ $\neg\text{grasped} \land \neg\text{in\_bin}$
-                \item \textbf{PDDL Goal Monitor (\texttt{PDDLGoalCheck}):}
+                \item \textbf{Goal Monitor (\texttt{PDDLGoalCheck}):}
                 \newline Parses conjunctive goals $\bigwedge g_i$ from \texttt{problem.pddl}. Evaluates pre/post conditions to skip met goals or trigger retry.
             \end{itemize}
         \end{block}
@@ -911,62 +911,116 @@ The executive layer instantiates action skills and condition monitors as modular
 
 \begin{frame}[fragile,t]
 \frametitle{Execution \& Runtime Tree}
+\vspace{-0.25cm}
 \footnotesize
-The runtime engine executes the compiled Behavior Tree via a 20\,Hz tick loop, continuously monitoring preconditions, dispatching skills, and recovering from physical disturbances.
+The runtime engine executes the compiled Behavior Tree via a 20\,Hz tick loop, continuously verifying action post-conditions, dispatching motion skills, and recovering from disturbances.
 
-\vspace{0.01cm}
+\vspace{-0.22cm}
 \begin{columns}[T]
     \begin{column}{0.50\textwidth}
         \begin{block}{Runtime Execution Pipeline}
             \begin{itemize}\scriptsize
                 \setlength\itemsep{0.05em}
-                \item \textbf{20\,Hz Tick Loop (\texttt{BehaviourTree.tick()}):}
-                \newline Synchronously evaluates the tree to active leaf; steps simulation with 7-DOF OSC action $a \in \mathbb{R}^7$.
-                \item \textbf{4-Phase Reactive Flow:}
-                \newline $\bullet$ \textit{1. Pre-Check:} \texttt{GoalCheck\_Pre} skips met goals ($0$ redundant steps).
-                \newline $\bullet$ \textit{2. Dispatch:} \texttt{Sequence} executes skills in deterministic plan order.
-                \newline $\bullet$ \textit{3. Motion:} Active skill steps RRT waypoints at 20\,Hz.
-                \newline $\bullet$ \textit{4. Recovery:} \texttt{GoalCheck\_Post} triggers \texttt{Retry} on slip or drop.
-                \item \textbf{Live State Introspection:}
-                \newline Live HUD tracks active node, motion stage, and tick counter in real time.
+                \item \textbf{20\,Hz Tick Loop (\texttt{py\_trees}):}
+                Synchronous active-leaf evaluation; steps MuJoCo with 7-DOF OSC commands $a \in \mathbb{R}^7$.
+                \item \textbf{Closed-Loop Reactive Flow:}
+                \newline $\bullet$ \textit{Pre-Check:} \texttt{GoalCheck\_Pre} skips met goals ($0$ redundant steps).
+                \newline $\bullet$ \textit{Skill Dispatch:} Steps TaskSpaceRRT waypoints or PPO policy.
+                \newline $\bullet$ \textit{Post-Check:} \texttt{Holding} / \texttt{On} verify physical effect immediately.
+                \newline $\bullet$ \textit{Recovery:} Action failure triggers \texttt{retry\_until\_goal} loop.
+                \newline $\bullet$ \textit{Post-Check:} \texttt{GoalCheck\_Post} verify if all the goal predicates are true.
+                \item \textbf{Real-Time Telemetry:}
+                Dual-camera HUD overlays active leaf, skill status, and ticks.
             \end{itemize}
         \end{block}
     \end{column}
 
     \begin{column}{0.48\textwidth}
-        \begin{block}{Generated Behavior Tree Structure}
-            \setbeamercolor{treebox}{bg=gray!10,fg=black}
-            \begin{beamercolorbox}[sep=2.5pt,rounded=true]{treebox}
-                \fontsize{5.8pt}{6.8pt}\selectfont
+        \setbeamercolor{treebox}{bg=gray!10,fg=black}
+        \begin{beamercolorbox}[sep=5pt,rounded=true,shadow=true]{treebox}
+            \scriptsize \textbf{Goal-Guarded Tree Architecture}
+                \fontsize{4.4pt}{5.1pt}\selectfont
 \begin{verbatim}
 [?] goal_guarded_root (Selector)
  |-- [>] GoalCheck_Pre (already met?)
- `-- [R] retry_until_goal (max=3)
+ `-- [R] retry_until_goal (max=10)
       `-- [->] attempt (Sequence)
-           |-- [->] pddl_plan_sequence
-           |    |-- PickUp(yellow_cube)
-           |    `-- PlaceInBin(cube->pot)
+           |-- [->] pddl_plan_sequence (Memory)
+           |    |-- [->] PickSeq(yellow_cube)
+           |    |    |-- PickUp(yellow_cube)
+           |    |    `-- [>] Holding(yellow_cube)
+           |    |-- [->] PlaceSeq(cube->pot)
+           |    |    |-- PlaceInBin(cube->pot)
+           |    |    `-- [>] On(cube->pot)
            `-- [>] GoalCheck_Post (verified?)
 \end{verbatim}
             \end{beamercolorbox}
-            \vspace{0.01cm}
+            \vspace{-0.10cm}
             \begin{itemize}\scriptsize
                 \setlength\itemsep{0.02em}
-                \item \textbf{Selector [?]:} Dynamic fallback preemption.
-                \item \textbf{Sequence [\texttt{->}]:} Preserves PDDL action order.
-                \item \textbf{Retry [R]:} Autonomous loop on slip or drop.
+                \item \textbf{Selector [?]:} Skips plan if met; falls back to retry loop.
+                \item \textbf{Sequence [\texttt{->}]:} Action $\to$ Post-check; halts on slip/drop.
+                \item \textbf{Retry [R]:} Autonomous recovery loop ($\le 10$ attempts).
             \end{itemize}
-        \end{block}
     \end{column}
 \end{columns}
 
-\vspace{0.01cm}
+\vspace{0.12cm}
 \setbeamercolor{verdictbox}{bg=darkblue,fg=white}
-\begin{beamercolorbox}[sep=2pt,center,shadow=true,rounded=true]{verdictbox}
-    \tiny \textbf{Reactive Robustness:} Closed-loop Behavior Trees autonomously intercept execution disturbances and trigger plan recovery.
+\begin{beamercolorbox}[sep=2.2pt,center,rounded=true]{verdictbox}
+    \tiny \textbf{Reactive Robustness:} Closed-loop verification of positive post-conditions halts flawed execution immediately, enabling autonomous recovery without cascading errors.
 \end{beamercolorbox}
 \end{frame}
 
+\begin{frame}[t]
+\frametitle{Main Scenario: Generated Behavior Tree}
+\vspace{-0.25cm}
+
+% --- Hero Section: Large, Prominent Behavior Tree Diagram ---
+\begin{center}
+    \includegraphics[width=0.98\linewidth,height=0.55\textheight,keepaspectratio]{pictures/main_scenario_bt.pdf}
+\end{center}
+
+\vspace{-0.32cm}
+% --- Aesthetic Bottom Section: 3 Perfectly Balanced Architectural Pillars ---
+\setbeamercolor{pillarbox}{bg=gray!10,fg=black}
+\begin{columns}[T]
+    \begin{column}{0.32\textwidth}
+        \begin{beamercolorbox}[sep=3.5pt,rounded=true,shadow=true,wd=\linewidth]{pillarbox}
+            \scriptsize \textbf{\textcolor{darkblue}{1. Goal Conditions Check}}
+            \vspace{0.05cm}\newline
+            \tiny
+            $\bullet$ \textbf{GoalCheck\_Pre:} skips action if goal met ($0$ latency).
+            \newline
+            $\bullet$ \textbf{GoalCheck\_Post:} verifies overall task formula $\mathcal{G} = \bigwedge_i on(x_i, \text{loc}_i)$.
+        \end{beamercolorbox}
+    \end{column}
+
+    \begin{column}{0.32\textwidth}
+        \begin{beamercolorbox}[sep=3.5pt,rounded=true,shadow=true,wd=\linewidth]{pillarbox}
+            \scriptsize \textbf{\textcolor{darkblue}{2. Action Sequence}}
+            \vspace{0.05cm}\newline
+            \tiny
+            $\bullet$ \textbf{Pick:} $\texttt{pick}$ action and effects conditions $\texttt{Holding}(x)$ ($\Delta z > 2.5\,\text{cm}$) checking.
+            \newline
+            $\bullet$ \textbf{Place:} $\texttt{place}$ action and effects conditions $\texttt{On}(x \to \text{loc})$ (containment) Checking.
+            \newline
+            $\bullet$ Halts execution immediately on $\texttt{FAILURE}$ conditions (slip/miss).
+        \end{beamercolorbox}
+    \end{column}
+
+    \begin{column}{0.32\textwidth}
+        \begin{beamercolorbox}[sep=3.5pt,rounded=true,shadow=true,wd=\linewidth]{pillarbox}
+            \scriptsize \textbf{\textcolor{darkblue}{3. Reactive Recovery}}
+            \vspace{0.05cm}\newline
+            \tiny
+            $\bullet$ \textbf{retry\_until\_goal $\le$ 10 attempts}.
+            \newline
+            $\bullet$ Intercepts disturbance $\to$ re-attempts plan rather than blindly continuing.
+        \end{beamercolorbox}
+    \end{column}
+\end{columns}
+\end{frame}
 
 \section{Reactive Layer}
 \begin{frame}
@@ -1090,7 +1144,7 @@ The runtime engine executes the compiled Behavior Tree via a 20\,Hz tick loop, c
 \end{frame}
 
 \begin{frame}
-    \frametitle{Proximal Policy Optimization}
+    \frametitle{Manipulation: Proximal Policy Optimization}
     Proximal Policy Optimization is an on-policy actor-critic Reinforcement Learning method. PPO updates policy parameters $\theta_{k+1}$ by maximizing the \textbf{Clipped Surrogate Objective}:
     \[
     L^{\text{CLIP}}(\theta) = \hat{\mathbb{E}}_t \left[ \min \left( r_t(\theta)\hat{A}_t, \; \operatorname{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon)\hat{A}_t \right) \right]
@@ -1108,7 +1162,7 @@ The runtime engine executes the compiled Behavior Tree via a 20\,Hz tick loop, c
 \end{frame}
 
 \begin{frame}
-    \frametitle{Manipulation: PPO Approach}
+    \frametitle{Manipulation: Observation Space}
     \small
     \texttt{TaskSpaceRRT} provides coarse global navigation to a pre-grasp hover pose ($\sim 18\,\text{cm}$ above the object). The \textbf{PPO policy} then takes over using a minimal, translation-invariant \textbf{11D observation vector}:
     
@@ -1120,7 +1174,7 @@ The runtime engine executes the compiled Behavior Tree via a 20\,Hz tick loop, c
         \begin{column}{0.48\textwidth}
             \begin{block}{Kinematics \& Spatial Relations}
                 \begin{itemize}\footnotesize
-                    \item $\Delta\mathbf{p} = \mathbf{p}_{\text{obj}} - \mathbf{p}_{\text{EEF}}$: 3D relative vector (translation invariance across table).
+                    \item $\Delta\mathbf{p} = \mathbf{p}_{\text{obj}} - \mathbf{p}_{\text{EEF}}$: 3D relative position vector (translation invariance across table).
                     \item $z_{\text{rel}}^{\text{EEF}} = p_{\text{EEF}, z} - z_{\text{table}}$: Table clearance to avoid surface collisions.
                     \item $\Delta z_{\text{obj}} = p_{\text{obj}, z} - p_{\text{obj}, z}^{(0)}$: Vertical displacement measuring lift progress.
                 \end{itemize}
@@ -1188,17 +1242,17 @@ The runtime engine executes the compiled Behavior Tree via a 20\,Hz tick loop, c
     \vspace{-0.3cm}
     \begin{columns}[T]
         \begin{column}{0.48\textwidth}
-            \begin{block}{Training Progression (25k Steps)}
+            \begin{block}{Training Return}
                 \begin{itemize}\scriptsize
-                    \item \textbf{Stochastic Action Noise:} Persistent exploration noise ($\sigma \approx 1.0$) perturbs micro-contacts during training ($\sim 50$ avg), though clean rollouts reach $\approx 200$--$230$.
-                    \item \textbf{Peak Episodes ($\approx 200$--$230$):} Unperturbed trajectories achieve full force closure and lift with terminal bonus ($+15$).
+                    \item \textbf{Stochastic Action Noise:} Persistent Gaussian exploration noise (with standard deviation $\sigma \approx 1.0$) perturbs micro-contacts during training ($\sim 50$ avg).
+                    \item \textbf{Peak Episodes ($\approx 200$--$230$):} When random noise aligns perfectly, trajectories achieve full force closure and lift with terminal bonus ($+15$).
                 \end{itemize}
             \end{block}
         \end{column}
         \begin{column}{0.48\textwidth}
-            \begin{block}{Deterministic Task Completion}
+            \begin{block}{Evaluation and Task Completion}
                 \begin{itemize}\scriptsize
-                    \item \textbf{Deterministic Evaluation:} Setting $\sigma = 0$ removes action jitter, revealing the true learned policy return of $\mathbf{199.4}$ (near theoretical max $\sim 200$).
+                    \item \textbf{Deterministic Evaluation:} Setting $\sigma = 0$ and evaluating via the distribution mean $\mu$ effectively removes action jitter, revealing the true learned policy return of $\mathbf{199.4}$ (near theoretical max $\sim 200$).
                     \item \textbf{Success Rate Ascent:} Climbs rapidly from $\mathbf{0\%} \to \mathbf{45\%} \to \mathbf{95\%}$ robust task completion.
                 \end{itemize}
             \end{block}

@@ -41,7 +41,11 @@ import src.envs  # registers TaskSorting
 from src.envs import RobosuiteEnvAdapter
 from src.ambiguityres.vlm_model import ambresFewShotPrompt, AmbresStructured
 from src.llm2pddl.domains import Domain, PDDLenv
-from src.behaviorTree import build_bt_from_pddl_plan, render_bt
+from src.behaviorTree import (
+    build_bt_from_pddl_plan,
+    render_bt,
+    export_presentation_bt,
+)
 
 
 def parse_args():
@@ -84,6 +88,17 @@ def parse_args():
         type=str,
         default="behavior_tree",
         help="Custom filename for the rendered Behavior Tree image in the images folder (default: behavior_tree)",
+    )
+    parser.add_argument(
+        "--export-presentation-bt",
+        action="store_true",
+        help="Export presentation-ready Behavior Tree diagrams (PDF, SVG, PNG, DOT) for LaTeX-Beamer",
+    )
+    parser.add_argument(
+        "--presentation-bt-name",
+        type=str,
+        default="behavior_tree_main_scenario",
+        help="Base filename for exported presentation Behavior Tree diagram (default: behavior_tree_main_scenario)",
     )
     parser.add_argument(
         "--no-ppo",
@@ -300,6 +315,20 @@ def main():
         images_dir = os.path.join(repo_root, "Docs", "pictures")
         render_bt(root=root_node, name=args.bt_image_name, target_dir=images_dir)
 
+    # Export presentation-grade Behavior Tree diagram for LaTeX-Beamer if requested
+    if args.export_presentation_bt:
+        images_dir = os.path.join(repo_root, "Docs", "pictures")
+        print("\n[BehaviorTree] Exporting presentation-ready diagram artifacts...")
+        paths = export_presentation_bt(
+            root=root_node,
+            name=args.presentation_bt_name,
+            target_dir=images_dir,
+            sync_main_scenario_bt=True,
+        )
+        print(f"✅ Successfully exported presentation diagrams to {images_dir}:")
+        for fmt, p in paths.items():
+            print(f"  - [{fmt.upper()}] {p}")
+
     # -------------------------------------------------------------------------
     # 7. Simulation Execution with RRT Motion Planning & Dual-Camera Visualization
     # -------------------------------------------------------------------------
@@ -366,15 +395,21 @@ def main():
                 # Find currently active leaf node
                 active_leaf = None
                 for node in root_node.iterate():
-                    if node.status == py_trees.common.Status.RUNNING and isinstance(node, py_trees.behaviour.Behaviour) and not isinstance(node, py_trees.composites.Composite):
+                    if (
+                        node.status == py_trees.common.Status.RUNNING
+                        and isinstance(node, py_trees.behaviour.Behaviour)
+                        and not isinstance(node, py_trees.composites.Composite)
+                        and not isinstance(node, py_trees.decorators.Decorator)
+                    ):
                         active_leaf = node
                         break
 
                 action_desc = "Idle"
                 if active_leaf is not None:
                     stage = getattr(active_leaf, "stage", "")
-                    target_obj = active_leaf.args.get("object", "")
-                    target_asset = active_leaf.args.get("asset", "")
+                    node_args = getattr(active_leaf, "args", {})
+                    target_obj = node_args.get("object", "")
+                    target_asset = node_args.get("asset", "")
                     detail = f"{target_obj}" + (f" -> {target_asset}" if target_asset else "")
                     action_desc = f"{active_leaf.name} [{detail}] ({stage})"
 

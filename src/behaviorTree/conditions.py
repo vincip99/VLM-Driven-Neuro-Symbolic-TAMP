@@ -81,35 +81,42 @@ def extract_goals_from_problem(problem_source: Optional[str] = None) -> List[Tup
 def evaluate_pddl_predicate(env: Any, predicate: str, args: List[str]) -> bool:
     """
     Evaluate whether a PDDL predicate holds true in the simulation environment.
+    Supports both positive and negated predicates (prefixed with 'not-', 'not_', '¬', or '!').
     """
     if env is None or not args:
         return False
 
     pred = predicate.lower().strip()
+    negated = False
+    for prefix in ("not-", "not_", "¬", "!"):
+        if pred.startswith(prefix):
+            negated = True
+            pred = pred[len(prefix):].strip()
+            break
 
+    res = False
     if pred == "on":
         obj = args[0]
         target = args[1] if len(args) > 1 else "bin"
         if hasattr(env, "is_in_bin"):
-            return bool(env.is_in_bin(obj, target))
-        return False
+            res = bool(env.is_in_bin(obj, target))
 
     elif pred == "holding":
         obj = args[0]
         if hasattr(env, "is_grasped"):
-            return bool(env.is_grasped(obj))
-        return False
+            res = bool(env.is_grasped(obj))
 
-    elif pred == "on-table":
+    elif pred in ("on-table", "on_table"):
         obj = args[0]
-        if hasattr(env, "is_grasped") and env.is_grasped(obj):
-            return False
+        is_held = False
+        if hasattr(env, "is_grasped"):
+            is_held = bool(env.is_grasped(obj))
+        is_in_bin = False
         if hasattr(env, "is_in_bin"):
-            if env.is_in_bin(obj, "bin") or env.is_in_bin(obj, "pot"):
-                return False
-        return True
+            is_in_bin = bool(env.is_in_bin(obj, "bin") or env.is_in_bin(obj, "pot"))
+        res = (not is_held) and (not is_in_bin)
 
-    return False
+    return (not res) if negated else res
 
 
 # ---------------------------------------------------------------------------
@@ -192,10 +199,13 @@ class PDDLCondition(py_trees.behaviour.Behaviour):
         env: Any = None,
         camera: Any = None,
         vlm_query_fn: Optional[Callable[[Any, str], str]] = None,
+        negated: bool = False,
         **kwargs
     ):
         super().__init__(name=name)
         self.args = dict(args) if args else {}
+        if negated:
+            self.args["negated"] = True
         self.env = env
         self.camera = camera
         self.vlm_query_fn = vlm_query_fn
@@ -211,15 +221,21 @@ class PDDLCondition(py_trees.behaviour.Behaviour):
             prompt = f"Answer only 'yes' or 'no'. Is the following true: {situation}"
             try:
                 answer = self.vlm_query_fn(frame, prompt).strip().lower()
-                return py_trees.common.Status.SUCCESS if answer.startswith("y") else py_trees.common.Status.FAILURE
+                is_yes = answer.startswith("y")
+                if self.args.get("negated", False):
+                    is_yes = not is_yes
+                return py_trees.common.Status.SUCCESS if is_yes else py_trees.common.Status.FAILURE
             except Exception as exc:
                 self.logger.warning(f"[{self.name}] VLM query error ({exc}), falling back to PDDL evaluation.")
 
         # 2. Evaluate predicate directly in the simulation environment
         predicate = self.args.get("predicate", self.args.get("pred", ""))
         pred_args = self.args.get("args", [])
+        is_negated = bool(self.args.get("negated", False))
         if predicate and pred_args and self.env is not None:
             holds = evaluate_pddl_predicate(self.env, predicate, pred_args)
+            if is_negated:
+                holds = not holds
             return py_trees.common.Status.SUCCESS if holds else py_trees.common.Status.FAILURE
 
         return py_trees.common.Status.SUCCESS
