@@ -320,17 +320,10 @@ class AmbresStructured(VlmChat):
   }
 }"""
 
-        # Resolve target locations
-        if target_locations is None or len(target_locations) == 0:
-            target_locations = []
-            for candidate in ["sorting_bin", "pot", "bowl", "bin"]:
-                if candidate in task_description.lower().replace(" ", "_"):
-                    target_locations.append(candidate)
-            if not target_locations:
-                target_locations = ["sorting_bin"]
-        safe_locations = [loc.strip().replace(" ", "_") for loc in target_locations]
+        # Sanitize target locations to valid PDDL identifiers (underscores, no spaces)
+        safe_locations = [loc.strip().replace(" ", "_") for loc in (target_locations or [])]
 
-        # Convert spaces to underscores in task objects and filter out any locations that slipped in
+        # Convert spaces to underscores in task objects and ensure strict type separation from locations
         safe_task_objects = [
             obj.strip().replace(" ", "_")
             for obj in task_objects
