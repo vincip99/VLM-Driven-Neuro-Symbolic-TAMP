@@ -12,8 +12,8 @@
       "sorting_bin"
     ],
     "is_ambiguous": true,
-    "vlm_grounding_time": 14.475,
-    "llm_first_pass_time": 11.854,
+    "vlm_grounding_time": 10.332,
+    "llm_first_pass_time": 11.606,
     "first_pass_valid": true,
     "first_pass_feasible": true,
     "first_pass_error": "None",
@@ -21,12 +21,942 @@
     "feedback_success": true,
     "fd_parser_error": false,
     "fd_success": true,
-    "fd_solve_time": 0.1091,
+    "fd_solve_time": 0.0789,
     "plan_length": 2,
     "plan_actions": [
       "(pick red_can)",
       "(place red_can sorting_bin)"
     ],
     "problem_pddl": "(define (problem manipulation-task)\n  (:domain manipulation)\n  (:objects\n    red_can - obj\n    sorting_bin - location\n  )\n  (:init\n    (on-table red_can)\n  )\n  (:goal (and\n    (on red_can sorting_bin)\n  ))\n)\n"
+  },
+  {
+    "trial_id": 2,
+    "name": "single_cube_pot",
+    "category": "Tier 1: Single-Object",
+    "prompt": "Please take the yellow cube and place it into the pot.",
+    "num_objects": 1,
+    "task_objects": [
+      "yellow_cube"
+    ],
+    "target_locations": [
+      "pot"
+    ],
+    "is_ambiguous": true,
+    "vlm_grounding_time": 9.555,
+    "llm_first_pass_time": 11.429,
+    "first_pass_valid": true,
+    "first_pass_feasible": true,
+    "first_pass_error": "None",
+    "retries_used": 0,
+    "feedback_success": true,
+    "fd_parser_error": false,
+    "fd_success": true,
+    "fd_solve_time": 0.0785,
+    "plan_length": 2,
+    "plan_actions": [
+      "(pick yellow_cube)",
+      "(place yellow_cube pot)"
+    ],
+    "problem_pddl": "(define (problem manipulation-task)\n  (:domain manipulation)\n  (:objects\n    yellow_cube - obj\n    pot - location\n  )\n  (:init\n    (on-table yellow_cube)\n  )\n  (:goal (and\n    (on yellow_cube pot)\n  ))\n)\n"
+  },
+  {
+    "trial_id": 3,
+    "name": "single_can_table_relocate",
+    "category": "Tier 1: Single-Object",
+    "prompt": "Move the blue can onto the table.",
+    "num_objects": 1,
+    "task_objects": [
+      "blue_can"
+    ],
+    "target_locations": [
+      "table"
+    ],
+    "is_ambiguous": true,
+    "vlm_grounding_time": 8.6,
+    "llm_first_pass_time": 11.434,
+    "first_pass_valid": true,
+    "first_pass_feasible": true,
+    "first_pass_error": "None",
+    "retries_used": 0,
+    "feedback_success": true,
+    "fd_parser_error": false,
+    "fd_success": true,
+    "fd_solve_time": 0.0796,
+    "plan_length": 2,
+    "plan_actions": [
+      "(pick blue_can)",
+      "(place blue_can table)"
+    ],
+    "problem_pddl": "(define (problem manipulation-task)\n  (:domain manipulation)\n  (:objects\n    blue_can - obj\n    table - location\n  )\n  (:init\n    (on-table blue_can)\n  )\n  (:goal (and\n    (on blue_can table)\n  ))\n)\n"
+  },
+  {
+    "trial_id": 4,
+    "name": "store_inside_phrasing_can",
+    "category": "Tier 1: Single-Object",
+    "prompt": "Grab the green can and store it inside the sorting bin.",
+    "num_objects": 1,
+    "task_objects": [
+      "green_can"
+    ],
+    "target_locations": [
+      "sorting_bin"
+    ],
+    "is_ambiguous": true,
+    "vlm_grounding_time": 8.568,
+    "llm_first_pass_time": 11.575,
+    "first_pass_valid": true,
+    "first_pass_feasible": true,
+    "first_pass_error": "None",
+    "retries_used": 0,
+    "feedback_success": true,
+    "fd_parser_error": false,
+    "fd_success": true,
+    "fd_solve_time": 0.0799,
+    "plan_length": 2,
+    "plan_actions": [
+      "(pick green_can)",
+      "(place green_can sorting_bin)"
+    ],
+    "problem_pddl": "(define (problem manipulation-task)\n  (:domain manipulation)\n  (:objects\n    green_can - obj\n    sorting_bin - location\n  )\n  (:init\n    (on-table green_can)\n  )\n  (:goal (and\n    (on green_can sorting_bin)\n  ))\n)\n"
+  },
+  {
+    "trial_id": 5,
+    "name": "deposit_block_pot",
+    "category": "Tier 1: Single-Object",
+    "prompt": "Deposit the purple cube into the pot receptacle.",
+    "num_objects": 1,
+    "task_objects": [
+      "purple_cube"
+    ],
+    "target_locations": [
+      "pot"
+    ],
+    "is_ambiguous": true,
+    "vlm_grounding_time": 8.529,
+    "llm_first_pass_time": 11.441,
+    "first_pass_valid": true,
+    "first_pass_feasible": true,
+    "first_pass_error": "None",
+    "retries_used": 0,
+    "feedback_success": true,
+    "fd_parser_error": false,
+    "fd_success": true,
+    "fd_solve_time": 0.0846,
+    "plan_length": 2,
+    "plan_actions": [
+      "(pick purple_cube)",
+      "(place purple_cube pot)"
+    ],
+    "problem_pddl": "(define (problem manipulation-task)\n  (:domain manipulation)\n  (:objects\n    purple_cube - obj\n    pot - location\n  )\n  (:init\n    (on-table purple_cube)\n  )\n  (:goal (and\n    (on purple_cube pot)\n  ))\n)\n"
+  },
+  {
+    "trial_id": 6,
+    "name": "can_and_cube_split",
+    "category": "Tier 2: Two-Object Sequential",
+    "prompt": "Put the red can in the sorting bin, then put the yellow cube in the pot.",
+    "num_objects": 2,
+    "task_objects": [
+      "red_can",
+      "yellow_cube"
+    ],
+    "target_locations": [
+      "sorting_bin",
+      "pot"
+    ],
+    "is_ambiguous": true,
+    "vlm_grounding_time": 8.672,
+    "llm_first_pass_time": 15.101,
+    "first_pass_valid": true,
+    "first_pass_feasible": true,
+    "first_pass_error": "None",
+    "retries_used": 0,
+    "feedback_success": true,
+    "fd_parser_error": false,
+    "fd_success": true,
+    "fd_solve_time": 0.0781,
+    "plan_length": 4,
+    "plan_actions": [
+      "(pick yellow_cube)",
+      "(place yellow_cube pot)",
+      "(pick red_can)",
+      "(place red_can sorting_bin)"
+    ],
+    "problem_pddl": "(define (problem manipulation-task)\n  (:domain manipulation)\n  (:objects\n    red_can - obj\n    yellow_cube - obj\n    sorting_bin - location\n    pot - location\n  )\n  (:init\n    (on-table red_can)\n    (on-table yellow_cube)\n  )\n  (:goal (and\n    (on red_can sorting_bin)\n    (on yellow_cube pot)\n  ))\n)\n"
+  },
+  {
+    "trial_id": 7,
+    "name": "two_cans_same_bin",
+    "category": "Tier 2: Two-Object Sequential",
+    "prompt": "Place both the red can and the blue can inside the sorting bin.",
+    "num_objects": 2,
+    "task_objects": [
+      "red_can",
+      "blue_can"
+    ],
+    "target_locations": [
+      "sorting_bin"
+    ],
+    "is_ambiguous": true,
+    "vlm_grounding_time": 8.912,
+    "llm_first_pass_time": 14.371,
+    "first_pass_valid": true,
+    "first_pass_feasible": true,
+    "first_pass_error": "None",
+    "retries_used": 0,
+    "feedback_success": true,
+    "fd_parser_error": false,
+    "fd_success": true,
+    "fd_solve_time": 0.0813,
+    "plan_length": 4,
+    "plan_actions": [
+      "(pick red_can)",
+      "(place red_can sorting_bin)",
+      "(pick blue_can)",
+      "(place blue_can sorting_bin)"
+    ],
+    "problem_pddl": "(define (problem manipulation-task)\n  (:domain manipulation)\n  (:objects\n    red_can - obj\n    blue_can - obj\n    sorting_bin - location\n  )\n  (:init\n    (on-table red_can)\n    (on-table blue_can)\n  )\n  (:goal (and\n    (on red_can sorting_bin)\n    (on blue_can sorting_bin)\n  ))\n)\n"
+  },
+  {
+    "trial_id": 8,
+    "name": "two_cubes_different_receptacles",
+    "category": "Tier 2: Two-Object Sequential",
+    "prompt": "First pick up the yellow cube and drop it in the pot, then place the purple cube in the sorting bin.",
+    "num_objects": 2,
+    "task_objects": [
+      "yellow_cube",
+      "purple_cube"
+    ],
+    "target_locations": [
+      "pot",
+      "sorting_bin"
+    ],
+    "is_ambiguous": true,
+    "vlm_grounding_time": 8.836,
+    "llm_first_pass_time": 14.484,
+    "first_pass_valid": true,
+    "first_pass_feasible": true,
+    "first_pass_error": "None",
+    "retries_used": 0,
+    "feedback_success": true,
+    "fd_parser_error": false,
+    "fd_success": true,
+    "fd_solve_time": 0.0797,
+    "plan_length": 4,
+    "plan_actions": [
+      "(pick yellow_cube)",
+      "(place yellow_cube pot)",
+      "(pick purple_cube)",
+      "(place purple_cube sorting_bin)"
+    ],
+    "problem_pddl": "(define (problem manipulation-task)\n  (:domain manipulation)\n  (:objects\n    yellow_cube - obj\n    purple_cube - obj\n    pot - location\n    sorting_bin - location\n  )\n  (:init\n    (on-table yellow_cube)\n    (on-table purple_cube)\n  )\n  (:goal (and\n    (on yellow_cube pot)\n    (on purple_cube sorting_bin)\n  ))\n)\n"
+  },
+  {
+    "trial_id": 9,
+    "name": "two_cans_pot_storage",
+    "category": "Tier 2: Two-Object Sequential",
+    "prompt": "Can you put the blue can in the pot and then put the green can in the pot as well?",
+    "num_objects": 2,
+    "task_objects": [
+      "blue_can",
+      "green_can"
+    ],
+    "target_locations": [
+      "pot"
+    ],
+    "is_ambiguous": true,
+    "vlm_grounding_time": 8.702,
+    "llm_first_pass_time": 13.871,
+    "first_pass_valid": true,
+    "first_pass_feasible": true,
+    "first_pass_error": "None",
+    "retries_used": 0,
+    "feedback_success": true,
+    "fd_parser_error": false,
+    "fd_success": true,
+    "fd_solve_time": 0.0787,
+    "plan_length": 4,
+    "plan_actions": [
+      "(pick green_can)",
+      "(place green_can pot)",
+      "(pick blue_can)",
+      "(place blue_can pot)"
+    ],
+    "problem_pddl": "(define (problem manipulation-task)\n  (:domain manipulation)\n  (:objects\n    blue_can - obj\n    green_can - obj\n    pot - location\n  )\n  (:init\n    (on-table blue_can)\n    (on-table green_can)\n  )\n  (:goal (and\n    (on blue_can pot)\n    (on green_can pot)\n  ))\n)\n"
+  },
+  {
+    "trial_id": 10,
+    "name": "reverse_order_can_cube",
+    "category": "Tier 2: Two-Object Sequential",
+    "prompt": "Store the yellow cube in the sorting bin, and place the red can into the pot.",
+    "num_objects": 2,
+    "task_objects": [
+      "yellow_cube",
+      "red_can"
+    ],
+    "target_locations": [
+      "sorting_bin",
+      "pot"
+    ],
+    "is_ambiguous": true,
+    "vlm_grounding_time": 8.809,
+    "llm_first_pass_time": 14.549,
+    "first_pass_valid": true,
+    "first_pass_feasible": true,
+    "first_pass_error": "None",
+    "retries_used": 0,
+    "feedback_success": true,
+    "fd_parser_error": false,
+    "fd_success": true,
+    "fd_solve_time": 0.08,
+    "plan_length": 4,
+    "plan_actions": [
+      "(pick yellow_cube)",
+      "(place yellow_cube sorting_bin)",
+      "(pick red_can)",
+      "(place red_can pot)"
+    ],
+    "problem_pddl": "(define (problem manipulation-task)\n  (:domain manipulation)\n  (:objects\n    yellow_cube - obj\n    red_can - obj\n    sorting_bin - location\n    pot - location\n  )\n  (:init\n    (on-table yellow_cube)\n    (on-table red_can)\n  )\n  (:goal (and\n    (on yellow_cube sorting_bin)\n    (on red_can pot)\n  ))\n)\n"
+  },
+  {
+    "trial_id": 11,
+    "name": "drop_inside_cubes",
+    "category": "Tier 2: Two-Object Sequential",
+    "prompt": "Drop the purple cube inside the pot, then place the blue can inside the sorting bin.",
+    "num_objects": 2,
+    "task_objects": [
+      "purple_cube",
+      "blue_can"
+    ],
+    "target_locations": [
+      "pot",
+      "sorting_bin"
+    ],
+    "is_ambiguous": true,
+    "vlm_grounding_time": 9.058,
+    "llm_first_pass_time": 32.846,
+    "first_pass_valid": false,
+    "first_pass_feasible": false,
+    "first_pass_error": "Schema Validation Error",
+    "retries_used": 1,
+    "feedback_success": true,
+    "fd_parser_error": false,
+    "fd_success": true,
+    "fd_solve_time": 0.0808,
+    "plan_length": 4,
+    "plan_actions": [
+      "(pick purple_cube)",
+      "(place purple_cube pot)",
+      "(pick blue_can)",
+      "(place blue_can sorting_bin)"
+    ],
+    "problem_pddl": "(define (problem manipulation-task)\n  (:domain manipulation)\n  (:objects\n    purple_cube - obj\n    blue_can - obj\n    pot - location\n    sorting_bin - location\n  )\n  (:init\n    (on-table purple_cube)\n    (on-table blue_can)\n  )\n  (:goal (and\n    (on purple_cube pot)\n    (on blue_can sorting_bin)\n  ))\n)\n"
+  },
+  {
+    "trial_id": 12,
+    "name": "canonical_tasksorting_3obj",
+    "category": "Tier 3: Three-Object Chained",
+    "prompt": "Put the red can in the sorting bin, then put the yellow cube in the pot. Then take the blue can and put it in the sorting bin.",
+    "num_objects": 3,
+    "task_objects": [
+      "red_can",
+      "yellow_cube",
+      "blue_can"
+    ],
+    "target_locations": [
+      "sorting_bin",
+      "pot"
+    ],
+    "is_ambiguous": true,
+    "vlm_grounding_time": 8.856,
+    "llm_first_pass_time": 16.925,
+    "first_pass_valid": true,
+    "first_pass_feasible": true,
+    "first_pass_error": "None",
+    "retries_used": 0,
+    "feedback_success": true,
+    "fd_parser_error": false,
+    "fd_success": true,
+    "fd_solve_time": 0.0872,
+    "plan_length": 6,
+    "plan_actions": [
+      "(pick yellow_cube)",
+      "(place yellow_cube pot)",
+      "(pick red_can)",
+      "(place red_can sorting_bin)",
+      "(pick blue_can)",
+      "(place blue_can sorting_bin)"
+    ],
+    "problem_pddl": "(define (problem manipulation-task)\n  (:domain manipulation)\n  (:objects\n    red_can - obj\n    yellow_cube - obj\n    blue_can - obj\n    sorting_bin - location\n    pot - location\n  )\n  (:init\n    (on-table red_can)\n    (on-table yellow_cube)\n    (on-table blue_can)\n  )\n  (:goal (and\n    (on red_can sorting_bin)\n    (on yellow_cube pot)\n    (on blue_can sorting_bin)\n  ))\n)\n"
+  },
+  {
+    "trial_id": 13,
+    "name": "alternate_order_3obj",
+    "category": "Tier 3: Three-Object Chained",
+    "prompt": "First take the blue can to the sorting bin, then put the red can in the pot, and finally place the yellow cube into the sorting bin.",
+    "num_objects": 3,
+    "task_objects": [
+      "blue_can",
+      "red_can",
+      "yellow_cube"
+    ],
+    "target_locations": [
+      "sorting_bin",
+      "pot"
+    ],
+    "is_ambiguous": true,
+    "vlm_grounding_time": 8.935,
+    "llm_first_pass_time": 17.169,
+    "first_pass_valid": true,
+    "first_pass_feasible": true,
+    "first_pass_error": "None",
+    "retries_used": 0,
+    "feedback_success": true,
+    "fd_parser_error": false,
+    "fd_success": true,
+    "fd_solve_time": 0.0769,
+    "plan_length": 6,
+    "plan_actions": [
+      "(pick yellow_cube)",
+      "(place yellow_cube sorting_bin)",
+      "(pick red_can)",
+      "(place red_can pot)",
+      "(pick blue_can)",
+      "(place blue_can sorting_bin)"
+    ],
+    "problem_pddl": "(define (problem manipulation-task)\n  (:domain manipulation)\n  (:objects\n    blue_can - obj\n    red_can - obj\n    yellow_cube - obj\n    sorting_bin - location\n    pot - location\n  )\n  (:init\n    (on-table blue_can)\n    (on-table red_can)\n    (on-table yellow_cube)\n  )\n  (:goal (and\n    (on blue_can sorting_bin)\n    (on red_can pot)\n    (on yellow_cube sorting_bin)\n  ))\n)\n"
+  },
+  {
+    "trial_id": 14,
+    "name": "grouped_instruction_3obj",
+    "category": "Tier 3: Three-Object Chained",
+    "prompt": "Move all three items: place the red can and blue can in the sorting bin, and put the yellow cube in the pot.",
+    "num_objects": 3,
+    "task_objects": [
+      "red_can",
+      "blue_can",
+      "yellow_cube"
+    ],
+    "target_locations": [
+      "sorting_bin",
+      "pot"
+    ],
+    "is_ambiguous": true,
+    "vlm_grounding_time": 9.025,
+    "llm_first_pass_time": 17.162,
+    "first_pass_valid": true,
+    "first_pass_feasible": true,
+    "first_pass_error": "None",
+    "retries_used": 0,
+    "feedback_success": true,
+    "fd_parser_error": false,
+    "fd_success": true,
+    "fd_solve_time": 0.0785,
+    "plan_length": 6,
+    "plan_actions": [
+      "(pick yellow_cube)",
+      "(place yellow_cube pot)",
+      "(pick red_can)",
+      "(place red_can sorting_bin)",
+      "(pick blue_can)",
+      "(place blue_can sorting_bin)"
+    ],
+    "problem_pddl": "(define (problem manipulation-task)\n  (:domain manipulation)\n  (:objects\n    red_can - obj\n    blue_can - obj\n    yellow_cube - obj\n    sorting_bin - location\n    pot - location\n  )\n  (:init\n    (on-table red_can)\n    (on-table blue_can)\n    (on-table yellow_cube)\n  )\n  (:goal (and\n    (on red_can sorting_bin)\n    (on blue_can sorting_bin)\n    (on yellow_cube pot)\n  ))\n)\n"
+  },
+  {
+    "trial_id": 15,
+    "name": "two_cubes_one_can",
+    "category": "Tier 3: Three-Object Chained",
+    "prompt": "Put the yellow cube in the pot, the purple cube in the pot, and the green can in the sorting bin.",
+    "num_objects": 3,
+    "task_objects": [
+      "yellow_cube",
+      "purple_cube",
+      "green_can"
+    ],
+    "target_locations": [
+      "pot",
+      "sorting_bin"
+    ],
+    "is_ambiguous": true,
+    "vlm_grounding_time": 9.016,
+    "llm_first_pass_time": 17.185,
+    "first_pass_valid": true,
+    "first_pass_feasible": true,
+    "first_pass_error": "None",
+    "retries_used": 0,
+    "feedback_success": true,
+    "fd_parser_error": false,
+    "fd_success": true,
+    "fd_solve_time": 0.0862,
+    "plan_length": 6,
+    "plan_actions": [
+      "(pick yellow_cube)",
+      "(place yellow_cube pot)",
+      "(pick purple_cube)",
+      "(place purple_cube pot)",
+      "(pick green_can)",
+      "(place green_can sorting_bin)"
+    ],
+    "problem_pddl": "(define (problem manipulation-task)\n  (:domain manipulation)\n  (:objects\n    yellow_cube - obj\n    purple_cube - obj\n    green_can - obj\n    pot - location\n    sorting_bin - location\n  )\n  (:init\n    (on-table yellow_cube)\n    (on-table purple_cube)\n    (on-table green_can)\n  )\n  (:goal (and\n    (on yellow_cube pot)\n    (on purple_cube pot)\n    (on green_can sorting_bin)\n  ))\n)\n"
+  },
+  {
+    "trial_id": 16,
+    "name": "three_cans_sorting",
+    "category": "Tier 3: Three-Object Chained",
+    "prompt": "Sort all cans: put the red can in the sorting bin, the blue can in the pot, and the green can in the sorting bin.",
+    "num_objects": 3,
+    "task_objects": [
+      "red_can",
+      "blue_can",
+      "green_can"
+    ],
+    "target_locations": [
+      "sorting_bin",
+      "pot"
+    ],
+    "is_ambiguous": true,
+    "vlm_grounding_time": 9.22,
+    "llm_first_pass_time": 16.927,
+    "first_pass_valid": true,
+    "first_pass_feasible": true,
+    "first_pass_error": "None",
+    "retries_used": 0,
+    "feedback_success": true,
+    "fd_parser_error": false,
+    "fd_success": true,
+    "fd_solve_time": 0.082,
+    "plan_length": 6,
+    "plan_actions": [
+      "(pick red_can)",
+      "(place red_can sorting_bin)",
+      "(pick green_can)",
+      "(place green_can sorting_bin)",
+      "(pick blue_can)",
+      "(place blue_can pot)"
+    ],
+    "problem_pddl": "(define (problem manipulation-task)\n  (:domain manipulation)\n  (:objects\n    red_can - obj\n    blue_can - obj\n    green_can - obj\n    sorting_bin - location\n    pot - location\n  )\n  (:init\n    (on-table red_can)\n    (on-table blue_can)\n    (on-table green_can)\n  )\n  (:goal (and\n    (on red_can sorting_bin)\n    (on blue_can pot)\n    (on green_can sorting_bin)\n  ))\n)\n"
+  },
+  {
+    "trial_id": 17,
+    "name": "cleanup_table_mixed",
+    "category": "Tier 3: Three-Object Chained",
+    "prompt": "Clean up the table: place the green can into the sorting bin, the red can into the pot, and the purple cube into the sorting bin.",
+    "num_objects": 3,
+    "task_objects": [
+      "green_can",
+      "red_can",
+      "purple_cube"
+    ],
+    "target_locations": [
+      "sorting_bin",
+      "pot"
+    ],
+    "is_ambiguous": true,
+    "vlm_grounding_time": 9.341,
+    "llm_first_pass_time": 17.23,
+    "first_pass_valid": true,
+    "first_pass_feasible": true,
+    "first_pass_error": "None",
+    "retries_used": 0,
+    "feedback_success": true,
+    "fd_parser_error": false,
+    "fd_success": true,
+    "fd_solve_time": 0.0817,
+    "plan_length": 6,
+    "plan_actions": [
+      "(pick red_can)",
+      "(place red_can pot)",
+      "(pick purple_cube)",
+      "(place purple_cube sorting_bin)",
+      "(pick green_can)",
+      "(place green_can sorting_bin)"
+    ],
+    "problem_pddl": "(define (problem manipulation-task)\n  (:domain manipulation)\n  (:objects\n    green_can - obj\n    red_can - obj\n    purple_cube - obj\n    sorting_bin - location\n    pot - location\n  )\n  (:init\n    (on-table green_can)\n    (on-table red_can)\n    (on-table purple_cube)\n  )\n  (:goal (and\n    (on green_can sorting_bin)\n    (on red_can pot)\n    (on purple_cube sorting_bin)\n  ))\n)\n"
+  },
+  {
+    "trial_id": 18,
+    "name": "two_into_pot_one_bin",
+    "category": "Tier 3: Three-Object Chained",
+    "prompt": "Transfer the yellow cube and blue can into the pot, then place the red can into the sorting bin.",
+    "num_objects": 3,
+    "task_objects": [
+      "yellow_cube",
+      "blue_can",
+      "red_can"
+    ],
+    "target_locations": [
+      "pot",
+      "sorting_bin"
+    ],
+    "is_ambiguous": true,
+    "vlm_grounding_time": 9.028,
+    "llm_first_pass_time": 16.83,
+    "first_pass_valid": true,
+    "first_pass_feasible": true,
+    "first_pass_error": "None",
+    "retries_used": 0,
+    "feedback_success": true,
+    "fd_parser_error": false,
+    "fd_success": true,
+    "fd_solve_time": 0.0869,
+    "plan_length": 6,
+    "plan_actions": [
+      "(pick yellow_cube)",
+      "(place yellow_cube pot)",
+      "(pick red_can)",
+      "(place red_can sorting_bin)",
+      "(pick blue_can)",
+      "(place blue_can pot)"
+    ],
+    "problem_pddl": "(define (problem manipulation-task)\n  (:domain manipulation)\n  (:objects\n    yellow_cube - obj\n    blue_can - obj\n    red_can - obj\n    pot - location\n    sorting_bin - location\n  )\n  (:init\n    (on-table yellow_cube)\n    (on-table blue_can)\n    (on-table red_can)\n  )\n  (:goal (and\n    (on yellow_cube pot)\n    (on blue_can pot)\n    (on red_can sorting_bin)\n  ))\n)\n"
+  },
+  {
+    "trial_id": 19,
+    "name": "four_object_quad_sorting",
+    "category": "Tier 4: Four-Object High-Complexity",
+    "prompt": "Put the red can in the sorting bin, yellow cube in the pot, blue can in the sorting bin, and purple cube in the pot.",
+    "num_objects": 4,
+    "task_objects": [
+      "red_can",
+      "yellow_cube",
+      "blue_can",
+      "purple_cube"
+    ],
+    "target_locations": [
+      "sorting_bin",
+      "pot"
+    ],
+    "is_ambiguous": true,
+    "vlm_grounding_time": 8.927,
+    "llm_first_pass_time": 20.393,
+    "first_pass_valid": true,
+    "first_pass_feasible": true,
+    "first_pass_error": "None",
+    "retries_used": 0,
+    "feedback_success": true,
+    "fd_parser_error": false,
+    "fd_success": true,
+    "fd_solve_time": 0.0866,
+    "plan_length": 8,
+    "plan_actions": [
+      "(pick yellow_cube)",
+      "(place yellow_cube pot)",
+      "(pick red_can)",
+      "(place red_can sorting_bin)",
+      "(pick purple_cube)",
+      "(place purple_cube pot)",
+      "(pick blue_can)",
+      "(place blue_can sorting_bin)"
+    ],
+    "problem_pddl": "(define (problem manipulation-task)\n  (:domain manipulation)\n  (:objects\n    red_can - obj\n    yellow_cube - obj\n    blue_can - obj\n    purple_cube - obj\n    sorting_bin - location\n    pot - location\n  )\n  (:init\n    (on-table red_can)\n    (on-table yellow_cube)\n    (on-table blue_can)\n    (on-table purple_cube)\n  )\n  (:goal (and\n    (on red_can sorting_bin)\n    (on yellow_cube pot)\n    (on blue_can sorting_bin)\n    (on purple_cube pot)\n  ))\n)\n"
+  },
+  {
+    "trial_id": 20,
+    "name": "four_object_sequential_chain",
+    "category": "Tier 4: Four-Object High-Complexity",
+    "prompt": "First put the yellow cube in the pot, next put the red can in the sorting bin, then put the blue can in the pot, and finally put the green can in the sorting bin.",
+    "num_objects": 4,
+    "task_objects": [
+      "yellow_cube",
+      "red_can",
+      "blue_can",
+      "green_can"
+    ],
+    "target_locations": [
+      "pot",
+      "sorting_bin"
+    ],
+    "is_ambiguous": true,
+    "vlm_grounding_time": 9.507,
+    "llm_first_pass_time": 20.073,
+    "first_pass_valid": true,
+    "first_pass_feasible": true,
+    "first_pass_error": "None",
+    "retries_used": 0,
+    "feedback_success": true,
+    "fd_parser_error": false,
+    "fd_success": true,
+    "fd_solve_time": 0.1069,
+    "plan_length": 8,
+    "plan_actions": [
+      "(pick yellow_cube)",
+      "(place yellow_cube pot)",
+      "(pick red_can)",
+      "(place red_can sorting_bin)",
+      "(pick green_can)",
+      "(place green_can sorting_bin)",
+      "(pick blue_can)",
+      "(place blue_can pot)"
+    ],
+    "problem_pddl": "(define (problem manipulation-task)\n  (:domain manipulation)\n  (:objects\n    yellow_cube - obj\n    red_can - obj\n    blue_can - obj\n    green_can - obj\n    pot - location\n    sorting_bin - location\n  )\n  (:init\n    (on-table yellow_cube)\n    (on-table red_can)\n    (on-table blue_can)\n    (on-table green_can)\n  )\n  (:goal (and\n    (on yellow_cube pot)\n    (on red_can sorting_bin)\n    (on blue_can pot)\n    (on green_can sorting_bin)\n  ))\n)\n"
+  },
+  {
+    "trial_id": 21,
+    "name": "four_object_pairwise",
+    "category": "Tier 4: Four-Object High-Complexity",
+    "prompt": "Move the red can and blue can to the pot, and move the yellow cube and purple cube to the sorting bin.",
+    "num_objects": 4,
+    "task_objects": [
+      "red_can",
+      "blue_can",
+      "yellow_cube",
+      "purple_cube"
+    ],
+    "target_locations": [
+      "pot",
+      "sorting_bin"
+    ],
+    "is_ambiguous": true,
+    "vlm_grounding_time": 9.774,
+    "llm_first_pass_time": 41.425,
+    "first_pass_valid": false,
+    "first_pass_feasible": false,
+    "first_pass_error": "Schema Validation Error",
+    "retries_used": 1,
+    "feedback_success": true,
+    "fd_parser_error": false,
+    "fd_success": true,
+    "fd_solve_time": 0.0954,
+    "plan_length": 8,
+    "plan_actions": [
+      "(pick yellow_cube)",
+      "(place yellow_cube sorting_bin)",
+      "(pick red_can)",
+      "(place red_can pot)",
+      "(pick purple_cube)",
+      "(place purple_cube sorting_bin)",
+      "(pick blue_can)",
+      "(place blue_can pot)"
+    ],
+    "problem_pddl": "(define (problem manipulation-task)\n  (:domain manipulation)\n  (:objects\n    red_can - obj\n    blue_can - obj\n    yellow_cube - obj\n    purple_cube - obj\n    pot - location\n    sorting_bin - location\n  )\n  (:init\n    (on-table red_can)\n    (on-table blue_can)\n    (on-table yellow_cube)\n    (on-table purple_cube)\n  )\n  (:goal (and\n    (on red_can pot)\n    (on blue_can pot)\n    (on yellow_cube sorting_bin)\n    (on purple_cube sorting_bin)\n  ))\n)\n"
+  },
+  {
+    "trial_id": 22,
+    "name": "synonym_soda_can_container",
+    "category": "Tier 5: Ambiguity & Synonyms",
+    "prompt": "Take the red soda can and put it inside the sorting bin container.",
+    "num_objects": 1,
+    "task_objects": [
+      "red_soda_can"
+    ],
+    "target_locations": [
+      "sorting_bin"
+    ],
+    "is_ambiguous": true,
+    "vlm_grounding_time": 9.817,
+    "llm_first_pass_time": 13.089,
+    "first_pass_valid": true,
+    "first_pass_feasible": true,
+    "first_pass_error": "None",
+    "retries_used": 0,
+    "feedback_success": true,
+    "fd_parser_error": false,
+    "fd_success": true,
+    "fd_solve_time": 0.0921,
+    "plan_length": 2,
+    "plan_actions": [
+      "(pick red_soda_can)",
+      "(place red_soda_can sorting_bin)"
+    ],
+    "problem_pddl": "(define (problem manipulation-task)\n  (:domain manipulation)\n  (:objects\n    red_soda_can - obj\n    sorting_bin - location\n  )\n  (:init\n    (on-table red_soda_can)\n  )\n  (:goal (and\n    (on red_soda_can sorting_bin)\n  ))\n)\n"
+  },
+  {
+    "trial_id": 23,
+    "name": "synonym_cooking_pot_block",
+    "category": "Tier 5: Ambiguity & Synonyms",
+    "prompt": "Please deposit the bright yellow block into the cooking pot.",
+    "num_objects": 1,
+    "task_objects": [
+      "bright_yellow_block"
+    ],
+    "target_locations": [
+      "cooking_pot"
+    ],
+    "is_ambiguous": true,
+    "vlm_grounding_time": 10.083,
+    "llm_first_pass_time": 12.809,
+    "first_pass_valid": true,
+    "first_pass_feasible": true,
+    "first_pass_error": "None",
+    "retries_used": 0,
+    "feedback_success": true,
+    "fd_parser_error": false,
+    "fd_success": true,
+    "fd_solve_time": 0.0886,
+    "plan_length": 2,
+    "plan_actions": [
+      "(pick bright_yellow_block)",
+      "(place bright_yellow_block cooking_pot)"
+    ],
+    "problem_pddl": "(define (problem manipulation-task)\n  (:domain manipulation)\n  (:objects\n    bright_yellow_block - obj\n    cooking_pot - location\n  )\n  (:init\n    (on-table bright_yellow_block)\n  )\n  (:goal (and\n    (on bright_yellow_block cooking_pot)\n  ))\n)\n"
+  },
+  {
+    "trial_id": 24,
+    "name": "synonym_beverage_can_bin",
+    "category": "Tier 5: Ambiguity & Synonyms",
+    "prompt": "I need the blue beverage can stored in the bin, and the yellow cube in the pot.",
+    "num_objects": 2,
+    "task_objects": [
+      "blue_can",
+      "yellow_cube"
+    ],
+    "target_locations": [
+      "bin",
+      "pot"
+    ],
+    "is_ambiguous": true,
+    "vlm_grounding_time": 9.504,
+    "llm_first_pass_time": 15.75,
+    "first_pass_valid": true,
+    "first_pass_feasible": true,
+    "first_pass_error": "None",
+    "retries_used": 0,
+    "feedback_success": true,
+    "fd_parser_error": false,
+    "fd_success": true,
+    "fd_solve_time": 0.096,
+    "plan_length": 4,
+    "plan_actions": [
+      "(pick yellow_cube)",
+      "(place yellow_cube pot)",
+      "(pick blue_can)",
+      "(place blue_can bin)"
+    ],
+    "problem_pddl": "(define (problem manipulation-task)\n  (:domain manipulation)\n  (:objects\n    blue_can - obj\n    yellow_cube - obj\n    bin - location\n    pot - location\n  )\n  (:init\n    (on-table blue_can)\n    (on-table yellow_cube)\n  )\n  (:goal (and\n    (on blue_can bin)\n    (on yellow_cube pot)\n  ))\n)\n"
+  },
+  {
+    "trial_id": 25,
+    "name": "ambiguity_color_unspecified",
+    "category": "Tier 5: Ambiguity & Synonyms",
+    "prompt": "Pick up the can and put it in the sorting bin.",
+    "num_objects": 1,
+    "task_objects": [
+      "red_can"
+    ],
+    "target_locations": [
+      "sorting_bin"
+    ],
+    "is_ambiguous": true,
+    "vlm_grounding_time": 11.72,
+    "llm_first_pass_time": 12.611,
+    "first_pass_valid": true,
+    "first_pass_feasible": true,
+    "first_pass_error": "None",
+    "retries_used": 0,
+    "feedback_success": true,
+    "fd_parser_error": false,
+    "fd_success": true,
+    "fd_solve_time": 0.0993,
+    "plan_length": 2,
+    "plan_actions": [
+      "(pick red_can)",
+      "(place red_can sorting_bin)"
+    ],
+    "problem_pddl": "(define (problem manipulation-task)\n  (:domain manipulation)\n  (:objects\n    red_can - obj\n    sorting_bin - location\n  )\n  (:init\n    (on-table red_can)\n  )\n  (:goal (and\n    (on red_can sorting_bin)\n  ))\n)\n"
+  },
+  {
+    "trial_id": 26,
+    "name": "ambiguity_cube_unspecified",
+    "category": "Tier 5: Ambiguity & Synonyms",
+    "prompt": "Put the cube into the pot and the blue can in the bin.",
+    "num_objects": 2,
+    "task_objects": [
+      "yellow_cube",
+      "blue_can"
+    ],
+    "target_locations": [
+      "pot",
+      "bin"
+    ],
+    "is_ambiguous": true,
+    "vlm_grounding_time": 11.85,
+    "llm_first_pass_time": 15.655,
+    "first_pass_valid": true,
+    "first_pass_feasible": true,
+    "first_pass_error": "None",
+    "retries_used": 0,
+    "feedback_success": true,
+    "fd_parser_error": false,
+    "fd_success": true,
+    "fd_solve_time": 0.0969,
+    "plan_length": 4,
+    "plan_actions": [
+      "(pick yellow_cube)",
+      "(place yellow_cube pot)",
+      "(pick blue_can)",
+      "(place blue_can bin)"
+    ],
+    "problem_pddl": "(define (problem manipulation-task)\n  (:domain manipulation)\n  (:objects\n    yellow_cube - obj\n    blue_can - obj\n    pot - location\n    bin - location\n  )\n  (:init\n    (on-table yellow_cube)\n    (on-table blue_can)\n  )\n  (:goal (and\n    (on yellow_cube pot)\n    (on blue_can bin)\n  ))\n)\n"
+  },
+  {
+    "trial_id": 27,
+    "name": "explicit_pick_place_phrasing",
+    "category": "Tier 5: Ambiguity & Synonyms",
+    "prompt": "Pick up the green can and place it onto the sorting bin. After that, pick up the purple cube and place it onto the pot.",
+    "num_objects": 2,
+    "task_objects": [
+      "green_can",
+      "purple_cube"
+    ],
+    "target_locations": [
+      "sorting_bin",
+      "pot"
+    ],
+    "is_ambiguous": true,
+    "vlm_grounding_time": 9.719,
+    "llm_first_pass_time": 16.035,
+    "first_pass_valid": true,
+    "first_pass_feasible": true,
+    "first_pass_error": "None",
+    "retries_used": 0,
+    "feedback_success": true,
+    "fd_parser_error": false,
+    "fd_success": true,
+    "fd_solve_time": 0.0934,
+    "plan_length": 4,
+    "plan_actions": [
+      "(pick purple_cube)",
+      "(place purple_cube pot)",
+      "(pick green_can)",
+      "(place green_can sorting_bin)"
+    ],
+    "problem_pddl": "(define (problem manipulation-task)\n  (:domain manipulation)\n  (:objects\n    green_can - obj\n    purple_cube - obj\n    sorting_bin - location\n    pot - location\n  )\n  (:init\n    (on-table green_can)\n    (on-table purple_cube)\n  )\n  (:goal (and\n    (on green_can sorting_bin)\n    (on purple_cube pot)\n  ))\n)\n"
+  },
+  {
+    "trial_id": 28,
+    "name": "three_item_natural_sorting",
+    "category": "Tier 5: Ambiguity & Synonyms",
+    "prompt": "Sort the colored items: yellow block into the pot, red cylinder to the bin, blue cylinder to the pot.",
+    "num_objects": 3,
+    "task_objects": [
+      "yellow_block",
+      "red_cylinder",
+      "blue_cylinder"
+    ],
+    "target_locations": [
+      "pot",
+      "bin"
+    ],
+    "is_ambiguous": true,
+    "vlm_grounding_time": 9.334,
+    "llm_first_pass_time": 18.723,
+    "first_pass_valid": true,
+    "first_pass_feasible": true,
+    "first_pass_error": "None",
+    "retries_used": 0,
+    "feedback_success": true,
+    "fd_parser_error": false,
+    "fd_success": true,
+    "fd_solve_time": 0.0911,
+    "plan_length": 6,
+    "plan_actions": [
+      "(pick yellow_block)",
+      "(place yellow_block pot)",
+      "(pick red_cylinder)",
+      "(place red_cylinder bin)",
+      "(pick blue_cylinder)",
+      "(place blue_cylinder pot)"
+    ],
+    "problem_pddl": "(define (problem manipulation-task)\n  (:domain manipulation)\n  (:objects\n    yellow_block - obj\n    red_cylinder - obj\n    blue_cylinder - obj\n    pot - location\n    bin - location\n  )\n  (:init\n    (on-table yellow_block)\n    (on-table red_cylinder)\n    (on-table blue_cylinder)\n  )\n  (:goal (and\n    (on yellow_block pot)\n    (on red_cylinder bin)\n    (on blue_cylinder pot)\n  ))\n)\n"
   }
 ]

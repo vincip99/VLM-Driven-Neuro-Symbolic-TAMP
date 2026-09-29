@@ -361,12 +361,75 @@ class AmbresStructured(VlmChat):
         return problem_obj
 
     def generate_problem_with_retry(self, messages: list, domain_pddl: str, max_retries: int = 5):
-        # Extract valid predicates from domain_pddl string
+        # Extract valid predicates and parameter signatures from domain_pddl string
+        def parse_pddl_typed_params(param_str):
+            tokens = param_str.strip().split()
+            types = []
+            pending_vars = []
+            i = 0
+            while i < len(tokens):
+                tok = tokens[i]
+                if tok == '-':
+                    if i + 1 < len(tokens):
+                        type_name = tokens[i + 1]
+                        types.extend([type_name] * len(pending_vars))
+                        pending_vars = []
+                        i += 2
+                        continue
+                elif tok.startswith('?'):
+                    pending_vars.append(tok)
+                i += 1
+            types.extend(['object'] * len(pending_vars))
+            return types
+
         valid_predicates = {"="}
+        predicate_signatures = {}
         pred_match = re.search(r'\(:predicates(.*?)(?:\(:|\)$)', domain_pddl, re.DOTALL | re.IGNORECASE)
         if pred_match:
-            preds = re.findall(r'\(\s*([a-zA-Z0-9_\-]+)', pred_match.group(1))
-            valid_predicates.update(preds)
+            section = pred_match.group(1)
+            pred_decls = re.findall(r'\(\s*([a-zA-Z0-9_\-]+)(.*?)\)', section, re.DOTALL)
+            for pred_name, params_str in pred_decls:
+                valid_predicates.add(pred_name)
+                predicate_signatures[pred_name] = parse_pddl_typed_params(params_str)
+
+        # Fallback / enhancement: infer predicate parameter types from :action signatures if untyped in (:predicates)
+        action_matches = re.finditer(r'\(:action\s+[a-zA-Z0-9_\-]+\s+:parameters\s*\((.*?)\)(.*?)(?=\(:action|\)\s*$)', domain_pddl, re.DOTALL | re.IGNORECASE)
+        for act in action_matches:
+            param_str = act.group(1)
+            body_str = act.group(2)
+            tokens = param_str.strip().split()
+            var_to_type = {}
+            pending = []
+            i = 0
+            while i < len(tokens):
+                tok = tokens[i]
+                if tok == '-':
+                    if i + 1 < len(tokens):
+                        t = tokens[i + 1]
+                        for v in pending:
+                            var_to_type[v] = t
+                        pending = []
+                        i += 2
+                        continue
+                elif tok.startswith('?'):
+                    pending.append(tok)
+                i += 1
+            for v in pending:
+                var_to_type[v] = 'object'
+
+            clean_body = re.sub(r'\b(not|and|or)\b', '', body_str)
+            pred_calls = re.findall(r'\(\s*([a-zA-Z0-9_\-]+)([^()]*)\)', clean_body)
+            for p_name, args_str in pred_calls:
+                args = [a for a in args_str.split() if a.startswith('?')]
+                if not args:
+                    continue
+                inferred = [var_to_type.get(a, 'object') for a in args]
+                if p_name in predicate_signatures:
+                    current = predicate_signatures[p_name]
+                    if not current or all(t == 'object' for t in current):
+                        predicate_signatures[p_name] = inferred
+                else:
+                    predicate_signatures[p_name] = inferred
 
         # Extract valid types from domain_pddl string
         valid_types = set() 
@@ -390,14 +453,15 @@ class AmbresStructured(VlmChat):
                 
                 # Auto-heal: If an undeclared entity is used in :init or :goal, auto-declare it with inferred type
                 declared_objects = {obj.name for obj in problem_obj.objects}
-                known_locations = {"sorting_bin", "bin", "pot", "bowl", "box", "tray", "table"}
                 from src.llm2pddl.problem import PDDLObject
                 for pred in list(problem_obj.init) + list(problem_obj.goal):
+                    expected_param_types = predicate_signatures.get(pred.name, [])
                     for idx, param in enumerate(pred.parameters):
                         clean_p = param.strip().replace(" ", "_")
                         if clean_p and clean_p not in declared_objects and clean_p not in valid_types:
-                            if clean_p in known_locations or (pred.name == "on" and idx == 1):
-                                inferred_type = "location" if "location" in valid_types else "object"
+                            # Infer entity type from the predicate's parameter declaration order
+                            if idx < len(expected_param_types) and expected_param_types[idx] in valid_types:
+                                inferred_type = expected_param_types[idx]
                             else:
                                 inferred_type = "obj" if "obj" in valid_types else "object"
                             problem_obj.objects.append(PDDLObject(name=clean_p, type=inferred_type))

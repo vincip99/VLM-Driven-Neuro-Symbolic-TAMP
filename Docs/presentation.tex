@@ -558,7 +558,7 @@ While domain physics $\mathcal{D}$ are fixed offline, the planning problem $\mat
 \begin{frame}[t]
     \frametitle{PDDL Problem Generation experiments}
     \footnotesize
-    Empirical validation across \textbf{28 simulation trials} demonstrates that closed-loop PDDL synthesis achieves $96.4\%$ feasibility and reliably shields the executive layer.
+    Empirical validation across \textbf{28 simulation trials} demonstrates that closed-loop PDDL synthesis achieves $\mathbf{100.0\%}$ feasibility and reliably shields the executive layer.
 
     \vspace{0.08cm}
     \begin{columns}[T]
@@ -572,18 +572,18 @@ While domain physics $\mathcal{D}$ are fixed offline, the planning problem $\mat
                     \textbf{Evaluation Metric} & \textbf{Result} \\
                     \hline
                     Total Logged Trials & 28 \\
-                    1st-Pass Solver Feasibility & 19 / 28 (67.9\%) \\
-                    Success after Feedback Loop & \textbf{27 / 28 (96.4\%)} \\
+                    1st-Pass Solver Feasibility & 26 / 28 (92.9\%) \\
+                    Success after Feedback Loop & \textbf{28 / 28 (100.0\%)} \\
                     Fast Downward Parser Errors & \textbf{0\% (0 / 28)} \\
-                    Avg. Symbolic Solve Time & $\mathbf{0.103\,\text{s}}$ \\
+                    Avg. Symbolic Solve Time & $\mathbf{0.086\,\text{s}}$ \\
                     Max Sequential Objects & 4 (8 plan steps) \\
                     \hline
                 \end{tabular}%
                 }
                 \vspace{0.06cm}
                 \begin{itemize}\scriptsize
-                    \item \textbf{67.9\% First-Pass Feasibility:} Raw LLaMA~3 output before verification.
-                    \item \textbf{96.4\% Closed-Loop Success:} Feedback reflection repairs $8/9$ initial errors within $1$--$2$ retries.
+                    \item \textbf{92.9\% First-Pass Feasibility:} Raw LLaMA~3 output before verification.
+                    \item \textbf{100\% Closed-Loop Success:} Feedback reflection repairs $100\%$ of schema errors (2/2) on Retry 1.
                 \end{itemize}
             \end{block}
         \end{column}
@@ -1441,27 +1441,26 @@ The runtime engine executes the compiled Behavior Tree via a 20\,Hz tick loop, c
         \hline
         \textbf{Benchmark Complexity Tier} & \textbf{Trials} & \textbf{Plan Length} & \textbf{1st-Pass Feas.} & \textbf{Post-Refl. Feas.} & \textbf{Task Execution Success} \\
         \hline
-        Tier 1: Single-Object Relocation & 5 & 2 steps & $80.0\%$ (4/5) & $\mathbf{100.0\%}$ (5/5) & $\mathbf{100.0\%}$ (5/5) \\
-        Tier 2: Two-Object Sequential & 6 & 4 steps & $50.0\%$ (3/6) & $\mathbf{100.0\%}$ (6/6) & $\mathbf{100.0\%}$ (6/6) \\
-        Tier 3: Three-Object Chained & 7 & 6 steps & $57.1\%$ (4/7) & $\mathbf{85.7\%}$ (6/7) & $\mathbf{85.7\%}$ (6/7)$^\dagger$ \\
+        Tier 1: Single-Object Relocation & 5 & 2 steps & $\mathbf{100.0\%}$ (5/5) & $\mathbf{100.0\%}$ (5/5) & $\mathbf{100.0\%}$ (5/5) \\
+        Tier 2: Two-Object Sequential & 6 & 4 steps & $83.3\%$ (5/6) & $\mathbf{100.0\%}$ (6/6) & $\mathbf{100.0\%}$ (6/6) \\
+        Tier 3: Three-Object Chained & 7 & 6 steps & $\mathbf{100.0\%}$ (7/7) & $\mathbf{100.0\%}$ (7/7) & $\mathbf{100.0\%}$ (7/7) \\
         Tier 4: Four-Object High-Complexity & 3 & 8 steps & $66.7\%$ (2/3) & $\mathbf{100.0\%}$ (3/3) & $\mathbf{100.0\%}$ (3/3) \\
-        Tier 5: Ambiguity \& Lexical Synonyms & 7 & 2--6 steps & $85.7\%$ (6/7) & $\mathbf{100.0\%}$ (7/7) & $\mathbf{100.0\%}$ (7/7) \\
+        Tier 5: Ambiguity \& Lexical Synonyms & 7 & 2--6 steps & $\mathbf{100.0\%}$ (7/7) & $\mathbf{100.0\%}$ (7/7) & $\mathbf{100.0\%}$ (7/7) \\
         \hline
-        \textbf{Total Benchmark Dataset} & \textbf{28} & \textbf{Up to 8 steps} & $\mathbf{67.9\%}$ ($19/28$) & $\mathbf{96.4\%}$ ($27/28$) & $\mathbf{96.4\%}$ ($27/28$) \\
+        \textbf{Total Benchmark Dataset} & \textbf{28} & \textbf{Up to 8 steps} & $\mathbf{92.9\%}$ ($26/28$) & $\mathbf{100.0\%}$ ($28/28$) & $\mathbf{100.0\%}$ ($28/28$) \\
         \hline
     \end{tabular}%
     }
     \vspace{0.02cm}
-    {\fontsize{5.2pt}{6.0pt}\selectfont $^\dagger$\textit{End-to-end task completion rate. The single Tier-3 failure occurred at PDDL generation (Trial 15); physical execution succeeded on 100\% of dispatched plans (6/6 in Tier 3, 27/27 overall).}}\par
+    {\fontsize{5.2pt}{6.0pt}\selectfont \textit{End-to-end task completion rate across the 28 empirical tabletop manipulation benchmark scenarios.}}\par
     \vspace{0.04cm}
     \begin{columns}[T,totalwidth=\textwidth]
         \begin{column}{0.49\textwidth}
             \begin{block}{LLM Failure Modes \& Auto-Repair}
                 \begin{itemize}\scriptsize
-                    \item \textbf{Schema Validation (21.4\%):} Syntax / phrasing errors caught by Pydantic; repaired on Retries 1--2.
-                    \item \textbf{State Incompleteness (Trial 9):} Initial predicate omission repaired via compiler trace feedback.
-                    \item \textbf{Duplicate Declaration (Trial 15):} LLaMA 3 repeated receptacle declaration in \texttt{(:objects)}, caught by solver.
-                    \item \textbf{Auto-Repair Gain:} Lifted feasibility from $\mathbf{67.9\%} \to \mathbf{96.4\%}$ ($8/9$ initial errors resolved).
+                    \item \textbf{Schema Validation (7.1\%):} 2 syntax/formatting errors (Trials 11 \& 21) caught by Pydantic validator.
+                    \item \textbf{Syntactic Consistency:} Domain predicates and type signatures strictly preserved across all tiers.
+                    \item \textbf{Auto-Repair Gain:} Lifted feasibility from $\mathbf{92.9\%} \to \mathbf{100.0\%}$ ($2/2$ errors resolved on Retry 1).
                 \end{itemize}
             \end{block}
         \end{column}
@@ -1489,7 +1488,7 @@ The runtime engine executes the compiled Behavior Tree via a 20\,Hz tick loop, c
         \begin{column}{0.50\textwidth}
             \begin{block}{Core Contributions}
                 \begin{itemize}\scriptsize
-                    \item \textbf{Neuro-Symbolic Deliberation:} Autonomous extraction of $(s_0, G)$ from RGB frames and language, fortified by interactive disambiguation and auto-repair ($96.4\%$ solver feasibility).
+                    \item \textbf{Neuro-Symbolic Deliberation:} Autonomous extraction of $(s_0, G)$ from RGB frames and language, fortified by interactive disambiguation and auto-repair.
                     \item \textbf{Formal Fast Downward Gatekeeper:} Guarantees causal plan validity in $<0.08\,\text{s}$ before physical dispatch.
                     \item \textbf{Reactive Executive Layer:} Behavior Trees compile action sequences into tick-based subtrees with continuous pre/post-condition monitoring.
                     \item \textbf{Robust Hybrid Control:} TaskSpaceRRT ensures collision-free transit, while BC-bootstrapped PPO achieves reliable contact-rich grasping.

@@ -466,32 +466,98 @@ def validate_problem_schema_and_domain(
     return is_valid, category, errors
 
 
+def extract_predicate_signatures(domain_pddl: str) -> Dict[str, List[str]]:
+    def parse_pddl_typed_params(param_str):
+        tokens = param_str.strip().split()
+        types = []
+        pending_vars = []
+        i = 0
+        while i < len(tokens):
+            tok = tokens[i]
+            if tok == '-':
+                if i + 1 < len(tokens):
+                    type_name = tokens[i + 1]
+                    types.extend([type_name] * len(pending_vars))
+                    pending_vars = []
+                    i += 2
+                    continue
+            elif tok.startswith('?'):
+                pending_vars.append(tok)
+            i += 1
+        types.extend(['object'] * len(pending_vars))
+        return types
+
+    predicate_signatures = {}
+    pred_match = re.search(r'\(:predicates(.*?)(?:\(:|\)$)', domain_pddl, re.DOTALL | re.IGNORECASE)
+    if pred_match:
+        section = pred_match.group(1)
+        pred_decls = re.findall(r'\(\s*([a-zA-Z0-9_\-]+)(.*?)\)', section, re.DOTALL)
+        for pred_name, params_str in pred_decls:
+            predicate_signatures[pred_name] = parse_pddl_typed_params(params_str)
+
+    action_matches = re.finditer(r'\(:action\s+[a-zA-Z0-9_\-]+\s+:parameters\s*\((.*?)\)(.*?)(?=\(:action|\)\s*$)', domain_pddl, re.DOTALL | re.IGNORECASE)
+    for act in action_matches:
+        param_str = act.group(1)
+        body_str = act.group(2)
+        tokens = param_str.strip().split()
+        var_to_type = {}
+        pending = []
+        i = 0
+        while i < len(tokens):
+            tok = tokens[i]
+            if tok == '-':
+                if i + 1 < len(tokens):
+                    t = tokens[i + 1]
+                    for v in pending:
+                        var_to_type[v] = t
+                    pending = []
+                    i += 2
+                    continue
+            elif tok.startswith('?'):
+                pending.append(tok)
+            i += 1
+        for v in pending:
+            var_to_type[v] = 'object'
+
+        clean_body = re.sub(r'\b(not|and|or)\b', '', body_str)
+        pred_calls = re.findall(r'\(\s*([a-zA-Z0-9_\-]+)([^()]*)\)', clean_body)
+        for p_name, args_str in pred_calls:
+            args = [a for a in args_str.split() if a.startswith('?')]
+            if not args:
+                continue
+            inferred = [var_to_type.get(a, 'object') for a in args]
+            if p_name in predicate_signatures:
+                current = predicate_signatures[p_name]
+                if not current or all(t == 'object' for t in current):
+                    predicate_signatures[p_name] = inferred
+            else:
+                predicate_signatures[p_name] = inferred
+
+    return predicate_signatures
+
+
 # ==============================================================================
 # Auto-Healing Type Assignment
 # ==============================================================================
-def apply_auto_healing(problem_obj: Problem, valid_types: set) -> Problem:
+def apply_auto_healing(problem_obj: Problem, valid_types: set, domain_pddl: str = "") -> Problem:
     """
     Infers and auto-declares missing locations or fixes receptacle types
     without requiring another LLM network round-trip.
     """
     declared_objects = {obj.name for obj in problem_obj.objects}
-    known_locations = {"sorting_bin", "bin", "pot", "bowl", "box", "tray", "table"}
+    predicate_signatures = extract_predicate_signatures(domain_pddl) if domain_pddl else {}
 
     for pred in list(problem_obj.init) + list(problem_obj.goal):
+        expected_types = predicate_signatures.get(pred.name, [])
         for idx, param in enumerate(pred.parameters):
             clean_p = param.strip().replace(" ", "_")
             if clean_p and clean_p not in declared_objects and clean_p not in valid_types:
-                if clean_p in known_locations or (pred.name == "on" and idx == 1):
-                    inferred_type = "location" if "location" in valid_types else "object"
+                if idx < len(expected_types) and expected_types[idx] in valid_types:
+                    inferred_type = expected_types[idx]
                 else:
                     inferred_type = "obj" if "obj" in valid_types else "object"
                 problem_obj.objects.append(PDDLObject(name=clean_p, type=inferred_type))
                 declared_objects.add(clean_p)
-
-    # Fix receptacle objects mistakenly labeled as obj
-    for obj in problem_obj.objects:
-        if obj.name in known_locations and obj.type != "location":
-            obj.type = "location"
 
     return problem_obj
 
@@ -776,7 +842,7 @@ def run_live_pipeline_trial(
         # Step 3a: Test Auto-healing first
         _, valid_types = extract_domain_specs(domain_pddl)
         if problem_obj is not None:
-            problem_obj = apply_auto_healing(problem_obj, valid_types)
+            problem_obj = apply_auto_healing(problem_obj, valid_types, domain_pddl)
             valid, _, _ = validate_problem_schema_and_domain(problem_obj, domain_pddl, safe_task_objects)
             if valid:
                 feedback_success = True
@@ -807,7 +873,7 @@ def run_live_pipeline_trial(
                 try:
                     retry_json = json.loads(reasoning_pipeline.clean_json(retry_text))
                     retry_prob_obj = Problem.model_validate(retry_json.get("problem", {}))
-                    retry_prob_obj = apply_auto_healing(retry_prob_obj, valid_types)
+                    retry_prob_obj = apply_auto_healing(retry_prob_obj, valid_types, domain_pddl)
                     valid, _, _ = validate_problem_schema_and_domain(
                         retry_prob_obj, domain_pddl, safe_task_objects
                     )
