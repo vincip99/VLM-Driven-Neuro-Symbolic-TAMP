@@ -648,15 +648,23 @@ def run_live_pipeline_trial(
     vlm_input = {"task_description": prompt, "image_path": image_path}
     vlm_res = vision_pipeline.handle_query_dict(vlm_input)
 
-    grounded_objects = vlm_res.get("task_objects", [])
-    grounded_locations = vlm_res.get("target_locations", [])
+    sg = SceneGrounding(
+        task_objects=vlm_res.get("task_objects", []),
+        target_locations=vlm_res.get("target_locations", [])
+    )
+    grounded_objects = sg.task_objects
+    grounded_locations = sg.target_locations
     is_ambig = vlm_res.get("task_ambiguous", False)
 
     if is_ambig and scenario.get("is_ambiguous", False):
         clarif_response = scenario.get("clarification_response", "the red can")
         vlm_res2 = vision_pipeline.handle_response(clarif_response)
-        grounded_objects = vlm_res2.get("task_objects", grounded_objects)
-        grounded_locations = vlm_res2.get("target_locations", grounded_locations)
+        sg2 = SceneGrounding(
+            task_objects=vlm_res2.get("task_objects", grounded_objects),
+            target_locations=vlm_res2.get("target_locations", grounded_locations)
+        )
+        grounded_objects = sg2.task_objects
+        grounded_locations = sg2.target_locations
 
     vlm_time = time.time() - t_vlm_start
 

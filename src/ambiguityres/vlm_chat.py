@@ -104,9 +104,10 @@ class VlmChat:
 
         return text.strip()
 
-    def inference(self, messages, generate_kwargs: dict = None, do_sample: bool = True, format_schema: dict = None) -> str:
+    def inference(self, messages, generate_kwargs: dict = None, do_sample: bool = False, format_schema: dict = None) -> str:
         """
-        Run the inference with the given messages and max_retries
+        Run the inference with the given messages and max_retries.
+        Defaults to greedy decoding (temperature=0.0) for deterministic perception and PDDL extraction.
         """
         # Ollama api use HTTP so it requires images as raw bytes
         processed_images = []
@@ -127,7 +128,7 @@ class VlmChat:
                     msg["images"] = processed_images
                     break
 
-        options = {"temperature": 0.8 if do_sample else 0.0}
+        options = {"temperature": 0.7 if do_sample else 0.0}
         options.update(generate_kwargs or {})
         options.update({
                 "num_ctx": 8192  # Increases the context window to 8K tokens

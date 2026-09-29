@@ -243,16 +243,20 @@ Grounds natural language human instructions in the observed scene and explicitly
 \footnotesize
 Vision-Language Models (VLMs) integrate visual perception with linguistic reasoning by bridging continuous visual feature spaces and discrete language token spaces.
 
-\vspace{0.2cm}
+\vspace{0.15cm}
 \begin{columns}[T]
     \begin{column}{0.48\textwidth}
         \begin{figure}
             \centering
-            % Adjusting width slightly for better margin breathing room
             \includegraphics[width=0.95\linewidth]{pictures/llama3.png}
             \vspace{-0.1cm}
             \caption{\scriptsize Standard Dual-Encoder VLM Architecture}
         \end{figure}
+        \vspace{0.1cm}
+        \begin{block}{Training \& Alignment}
+            \scriptsize
+            Trained by aligning modalities using contrastive pretraining or lightweight projection adaptors (MLP) coupled with autoregressive instruction tuning.
+        \end{block}
     \end{column}
 
     \begin{column}{0.5\textwidth}
@@ -270,7 +274,7 @@ Vision-Language Models (VLMs) integrate visual perception with linguistic reason
             \end{itemize}
         \end{beamercolorbox}
         
-        \vspace{0.3cm}
+        \vspace{0.25cm}
         
         \begin{beamercolorbox}[sep=5pt,shadow=true,rounded=true]{vlmbox}
             \textbf{Vision Encoder (CNN / ViT)}
@@ -284,42 +288,6 @@ Vision-Language Models (VLMs) integrate visual perception with linguistic reason
         \end{beamercolorbox}
     \end{column}
 \end{columns}
-\end{frame}
-
-
-\begin{frame}[t]
-    \frametitle{VLM Training Methodologies}
-    \footnotesize
-    Training fuses information from vision and language encoders, correlating visual features with text semantics to enable unified multimodal reasoning.
-
-    \vspace{0.3cm}
-    \begin{columns}[T]
-        \begin{column}{0.48\textwidth}
-            \begin{block}{Contrastive Learning}
-                \scriptsize
-                Aligns modalities in a shared embedding space. The model minimizes the latent distance between matching image-text pairs while maximizing it for non-matching pairs.
-            \end{block}
-            
-            \vspace{0.1cm}
-            \begin{block}{Masked Modeling}
-                \scriptsize
-                Forces the model to reconstruct randomly obscured image patches or masked text tokens, learning robust contextual representations.
-            \end{block}
-        \end{column}
-
-        \begin{column}{0.48\textwidth}
-            \begin{block}{Generative Training}
-                \scriptsize
-                Optimizes the model to auto-regressively generate text conditioned on visual inputs (e.g., image captioning or visual question answering).
-            \end{block}
-
-            \vspace{0.1cm}
-            \begin{block}{Pretrained Projection}
-                \scriptsize
-                Freezes a pretrained LLM and Vision Encoder, training only a lightweight mapping network (e.g., MLP projector) to translate visual embeddings into the LLM's input space.
-            \end{block}
-        \end{column}
-    \end{columns}
 \end{frame}
 
 
@@ -364,6 +332,20 @@ A state-of-the-art multimodal foundation model utilizing a dynamic-resolution Vi
         \item \textbf{High Spatial Fidelity:} Superior grounding of manipulable items and receptacle boundaries.
     \end{itemize}
 \end{beamercolorbox}
+\end{frame}
+
+
+\begin{frame}[t]
+\frametitle{Visual Recognition \& Symbolic Grounding}
+\vspace{-0.1cm}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\linewidth,height=4.6cm,keepaspectratio]{pictures/perception_recognition_grounding.pdf}
+\end{figure}
+
+\vspace{0.1cm}
+\footnotesize
+Given the raw overhead RGB camera frame and the natural language instruction, \textbf{Qwen 2.5-VL} performs zero-shot visual recognition and symbol grounding, categorizing required entities into typed PDDL symbols (\texttt{obj} vs \texttt{location}) while ignoring unreferenced background distractors.
 \end{frame}
 
 \begin{frame}[t]

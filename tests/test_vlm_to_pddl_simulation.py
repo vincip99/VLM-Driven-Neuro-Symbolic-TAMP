@@ -39,7 +39,7 @@ if repo_root not in sys.path:
 # Custom environment, adapter, VLM, PDDL, and Behavior Tree modules
 import src.envs  # registers TaskSorting
 from src.envs import RobosuiteEnvAdapter
-from src.ambiguityres.vlm_model import ambresFewShotPrompt, AmbresStructured
+from src.ambiguityres.vlm_model import ambresFewShotPrompt, AmbresStructured, SceneGrounding
 from src.llm2pddl.domains import Domain, PDDLenv
 from src.behaviorTree import (
     build_bt_from_pddl_plan,
@@ -182,8 +182,14 @@ def main():
                     print(f"[Automated response]: {user_clarification}")
                 result = vision_pipeline.handle_response(user_clarification)
 
-            final_objects = result.get("task_objects", final_objects)
-            final_locations = result.get("target_locations", final_locations)
+            sg = SceneGrounding(
+                task_objects=result.get("task_objects", []),
+                target_locations=result.get("target_locations", [])
+            )
+            if sg.task_objects:
+                final_objects = sg.task_objects
+            if sg.target_locations:
+                final_locations = sg.target_locations
         except Exception as err:
             print(f"\n⚠️  VLM Query encountered error ({err}). Falling back to grounded objects: {final_objects}")
 

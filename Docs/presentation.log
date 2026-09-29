@@ -1,9 +1,9 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.3.13)  29 SEP 2026 09:34
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2026.3.13)  29 SEP 2026 11:10
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**Docs/presentation.tex
-(./Docs/presentation.tex
+**presentation.tex
+(./presentation.tex
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
 (/usr/share/texlive/texmf-dist/tex/latex/beamer/beamer.cls
@@ -1059,7 +1059,7 @@ Package: ifpdf 2019/10/25 v3.4 ifpdf legacy package. Use iftex instead.
 (/usr/share/texlive/texmf-dist/tex/latex/listings/lstlang1.sty
 File: lstlang1.sty 2023/02/27 1.9 listings language file
 )
-(Docs/presentation.aux)
+(./presentation.aux)
 \openout1 = `presentation.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 47.
@@ -1139,7 +1139,7 @@ e
 ))
 Package hyperref Info: Link coloring OFF on input line 47.
 
-(Docs/presentation.out) (Docs/presentation.out)
+(./presentation.out) (./presentation.out)
 \@outlinefile=\write6
 \openout6 = `presentation.out'.
 
@@ -1225,7 +1225,7 @@ Package caption Info: float package is loaded.
 Package caption Info: listings package is loaded.
 Package caption Info: End \AtBeginDocument code.
 \c@lstlisting=\count402
- (Docs/presentation.nav)
+ (./presentation.nav)
 <pictures/Dieti.png, id=38, 978.65625pt x 84.315pt>
 File: pictures/Dieti.png Graphic file (type png)
 <use pictures/Dieti.png>
@@ -1233,8 +1233,8 @@ Package pdftex.def Info: pictures/Dieti.png  used on input line 86.
 (pdftex.def)             Requested size: 364.19536pt x 31.37746pt.
  [1
 
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <Docs/pictures/Dieti.png>] 
-(Docs/presentation.toc) [2
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./pictures/Dieti.png>] (./
+presentation.toc) [2
 
 ]
 LaTeX Font Info:    Trying to load font information for U+msa on input line 148
@@ -1265,10 +1265,10 @@ ut line 148.
 
 [3
 
- <Docs/pictures/task_sorting_arena_isometric.png (PNG copy)>]
+ <./pictures/task_sorting_arena_isometric.png (PNG copy)>]
 
-pdfTeX warning: pdflatex (file Docs/pictures/vlm-tamp-diagram.pdf): PDF inclusi
-on: found PDF version <1.7>, but at most version <1.5> allowed
+pdfTeX warning: pdflatex (file ./pictures/vlm-tamp-diagram.pdf): PDF inclusion:
+ found PDF version <1.7>, but at most version <1.5> allowed
 <pictures/vlm-tamp-diagram.pdf, id=137, 895.42526pt x 439.6425pt>
 File: pictures/vlm-tamp-diagram.pdf Graphic file (type pdf)
 <use pictures/vlm-tamp-diagram.pdf>
@@ -1277,105 +1277,113 @@ Package pdftex.def Info: pictures/vlm-tamp-diagram.pdf  used on input line 159.
 (pdftex.def)             Requested size: 362.5998pt x 178.0341pt.
 [4
 
- <Docs/pictures/vlm-tamp-diagram.pdf>] [5
+ <./pictures/vlm-tamp-diagram.pdf>] [5
 
 ]
 <pictures/llama3.png, id=231, 968.418pt x 537.80925pt>
 File: pictures/llama3.png Graphic file (type png)
 <use pictures/llama3.png>
-Package pdftex.def Info: pictures/llama3.png  used on input line 287.
+Package pdftex.def Info: pictures/llama3.png  used on input line 291.
 (pdftex.def)             Requested size: 140.12247pt x 77.8121pt.
  [6
 
- <Docs/pictures/llama3.png>]
-[7
-
-]
-<pictures/qwen2.5vl_arc.jpeg, id=310, 4596.17125pt x 3010.24625pt>
+ <./pictures/llama3.png>]
+<pictures/qwen2.5vl_arc.jpeg, id=284, 4596.17125pt x 3010.24625pt>
 File: pictures/qwen2.5vl_arc.jpeg Graphic file (type jpg)
 <use pictures/qwen2.5vl_arc.jpeg>
-Package pdftex.def Info: pictures/qwen2.5vl_arc.jpeg  used on input line 367.
+Package pdftex.def Info: pictures/qwen2.5vl_arc.jpeg  used on input line 335.
 (pdftex.def)             Requested size: 147.49782pt x 96.59625pt.
+ [7
+
+ <./pictures/qwen2.5vl_arc.jpeg>]
+<pictures/perception_recognition_grounding.pdf, id=323, 493.36319pt x 283.29839
+pt>
+File: pictures/perception_recognition_grounding.pdf Graphic file (type pdf)
+<use pictures/perception_recognition_grounding.pdf>
+Package pdftex.def Info: pictures/perception_recognition_grounding.pdf  used on
+ input line 349.
+(pdftex.def)             Requested size: 227.92847pt x 130.88078pt.
  [8
 
- <Docs/pictures/qwen2.5vl_arc.jpeg>] [9
+ <./pictures/perception_recognition_grounding.pdf>] [9
 
 ] [10
 
 ]
-<pictures/deliberation_module.pdf, id=454, 533.11053pt x 182.27943pt>
+<pictures/deliberation_module.pdf, id=457, 533.11053pt x 182.27943pt>
 File: pictures/deliberation_module.pdf Graphic file (type pdf)
 <use pictures/deliberation_module.pdf>
 Package pdftex.def Info: pictures/deliberation_module.pdf  used on input line 5
-23.
+05.
 (pdftex.def)             Requested size: 175.89261pt x 60.14127pt.
 LaTeX Font Info:    Font shape `OT1/cmss/b/n' in size <7> not available
-(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 523.
+(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 505.
 
 LaTeX Font Info:    Font shape `OT1/cmss/b/n' in size <5> not available
-(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 523.
+(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 505.
 
  [11
 
- <Docs/pictures/deliberation_module.pdf>]
+ <./pictures/deliberation_module.pdf>]
 LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <7> not available
-(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 574.
+(Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 556.
  [12
 
 ]
 LaTeX Font Info:    Font shape `OT1/cmss/b/n' in size <8> not available
-(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 629.
+(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 611.
 
 LaTeX Font Info:    Font shape `OT1/cmss/b/n' in size <6> not available
-(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 629.
+(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 611.
 
  [13
 
 ]
 LaTeX Font Info:    Font shape `OT1/cmss/b/n' in size <9> not available
-(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 677.
+(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 659.
 
-<pictures/BT_search_and_grasp.pdf, id=586, 429.45087pt x 257.26427pt>
+<pictures/BT_search_and_grasp.pdf, id=589, 429.45087pt x 257.26427pt>
 File: pictures/BT_search_and_grasp.pdf Graphic file (type pdf)
 <use pictures/BT_search_and_grasp.pdf>
 Package pdftex.def Info: pictures/BT_search_and_grasp.pdf  used on input line 6
-77.
+59.
 (pdftex.def)             Requested size: 138.2795pt x 82.83656pt.
-<pictures/Fallback_in_Behavior_tree.png, id=587, 209.583pt x 78.0516pt>
+<pictures/Fallback_in_Behavior_tree.png, id=590, 209.583pt x 78.0516pt>
 File: pictures/Fallback_in_Behavior_tree.png Graphic file (type png)
 <use pictures/Fallback_in_Behavior_tree.png>
 Package pdftex.def Info: pictures/Fallback_in_Behavior_tree.png  used on input 
-line 677.
+line 659.
 (pdftex.def)             Requested size: 82.96854pt x 30.89851pt.
-<pictures/Sequence_composition_in_behaviour_trees.png, id=588, 209.583pt x 78.0
+<pictures/Sequence_composition_in_behaviour_trees.png, id=591, 209.583pt x 78.0
 516pt>
 File: pictures/Sequence_composition_in_behaviour_trees.png Graphic file (type p
 ng)
 <use pictures/Sequence_composition_in_behaviour_trees.png>
 Package pdftex.def Info: pictures/Sequence_composition_in_behaviour_trees.png  
-used on input line 677.
+used on input line 659.
 (pdftex.def)             Requested size: 82.96854pt x 30.89851pt.
  [14
 
- <Docs/pictures/BT_search_and_grasp.pdf> <Docs/pictures/Fallback_in_Behavior_tr
-ee.png> <Docs/pictures/Sequence_composition_in_behaviour_trees.png>]
+ <./pictures/BT_search_and_grasp.pdf> <./pictures/Fallback_in_Behavior_tree.png
+> <./pictures/Sequence_composition_in_behaviour_trees.png>]
 LaTeX Font Info:    Font shape `OT1/cmss/b/n' in size <10> not available
-(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 748.
+(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 730.
 
  [15
 
 ]
 \openout4 = `presentation.vrb'.
 
- (Docs/presentation.vrb
+ (./presentation.vrb
 LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <9> not available
 (Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 4.
-) [16
+)
+[16
 
 ]
 \openout4 = `presentation.vrb'.
 
- (Docs/presentation.vrb
+ (./presentation.vrb
 
 LaTeX Font Warning: Font shape `OT1/cmtt/m/n' in size <4.4> not available
 (Font)              size <5> substituted on input line 29.
@@ -1387,156 +1395,156 @@ LaTeX Font Warning: Font shape `OT1/cmtt/m/n' in size <4.4> not available
 ]
 \openout4 = `presentation.vrb'.
 
- (Docs/presentation.vrb) [19
+ (./presentation.vrb) [19
 
 ]
 
-pdfTeX warning: pdflatex (file Docs/pictures/main_scenario_bt.pdf): PDF inclusi
-on: found PDF version <1.7>, but at most version <1.5> allowed
-<pictures/main_scenario_bt.pdf, id=815, 1620.0525pt x 556.0775pt>
+pdfTeX warning: pdflatex (file ./pictures/main_scenario_bt.pdf): PDF inclusion:
+ found PDF version <1.7>, but at most version <1.5> allowed
+<pictures/main_scenario_bt.pdf, id=818, 1620.0525pt x 556.0775pt>
 File: pictures/main_scenario_bt.pdf Graphic file (type pdf)
 <use pictures/main_scenario_bt.pdf>
-Package pdftex.def Info: pictures/main_scenario_bt.pdf  used on input line 1030
+Package pdftex.def Info: pictures/main_scenario_bt.pdf  used on input line 1012
 .
 (pdftex.def)             Requested size: 301.13878pt x 103.36485pt.
 [20
 
- <Docs/pictures/main_scenario_bt.pdf>]
+ <./pictures/main_scenario_bt.pdf>]
 
-pdfTeX warning: pdflatex (file Docs/pictures/tamp.pdf): PDF inclusion: found PD
-F version <1.7>, but at most version <1.5> allowed
-<pictures/tamp.pdf, id=896, 370.5042pt x 375.32219pt>
+pdfTeX warning: pdflatex (file ./pictures/tamp.pdf): PDF inclusion: found PDF v
+ersion <1.7>, but at most version <1.5> allowed
+<pictures/tamp.pdf, id=899, 370.5042pt x 375.32219pt>
 File: pictures/tamp.pdf Graphic file (type pdf)
 <use pictures/tamp.pdf>
-Package pdftex.def Info: pictures/tamp.pdf  used on input line 1067.
+Package pdftex.def Info: pictures/tamp.pdf  used on input line 1049.
 (pdftex.def)             Requested size: 153.64493pt x 155.64127pt.
 [21
 
- <Docs/pictures/tamp.pdf>]
+ <./pictures/tamp.pdf>]
 \openout4 = `presentation.vrb'.
 
- (Docs/presentation.vrb) [22
+ (./presentation.vrb) [22
 
 ] [23
 
 ]
 
-pdfTeX warning: pdflatex (file Docs/pictures/fsm_tamp.pdf): PDF inclusion: foun
-d PDF version <1.7>, but at most version <1.5> allowed
-<pictures/fsm_tamp.pdf, id=1010, 362.3136pt x 211.7511pt>
+pdfTeX warning: pdflatex (file ./pictures/fsm_tamp.pdf): PDF inclusion: found P
+DF version <1.7>, but at most version <1.5> allowed
+<pictures/fsm_tamp.pdf, id=1013, 362.3136pt x 211.7511pt>
 File: pictures/fsm_tamp.pdf Graphic file (type pdf)
 <use pictures/fsm_tamp.pdf>
-Package pdftex.def Info: pictures/fsm_tamp.pdf  used on input line 1151.
+Package pdftex.def Info: pictures/fsm_tamp.pdf  used on input line 1133.
 (pdftex.def)             Requested size: 255.05115pt x 149.06158pt.
 [24
 
- <Docs/pictures/fsm_tamp.pdf>] [25
+ <./pictures/fsm_tamp.pdf>] [25
 
 ] [26
 
 ]
-Overfull \hbox (2.93375pt too wide) detected at line 1242
+Overfull \hbox (2.93375pt too wide) detected at line 1224
 \OT1/mathkerncmss/m/sl/7 r[] \OT1/cmss/m/n/7 = []
  []
 
 [27
 
 ]
-<pictures/ppo_training_results.pdf, id=1151, 944.67432pt x 265.21144pt>
+<pictures/ppo_training_results.pdf, id=1154, 944.67432pt x 265.21144pt>
 File: pictures/ppo_training_results.pdf Graphic file (type pdf)
 <use pictures/ppo_training_results.pdf>
 Package pdftex.def Info: pictures/ppo_training_results.pdf  used on input line 
-1268.
+1250.
 (pdftex.def)             Requested size: 301.14275pt x 84.5416pt.
  [28
 
- <Docs/pictures/ppo_training_results.pdf>]
-<pictures/ppo_bc_ablation.pdf, id=1261, 532.72523pt x 294.11946pt>
+ <./pictures/ppo_training_results.pdf>]
+<pictures/ppo_bc_ablation.pdf, id=1264, 532.72523pt x 294.11946pt>
 File: pictures/ppo_bc_ablation.pdf Graphic file (type pdf)
 <use pictures/ppo_bc_ablation.pdf>
-Package pdftex.def Info: pictures/ppo_bc_ablation.pdf  used on input line 1290.
+Package pdftex.def Info: pictures/ppo_bc_ablation.pdf  used on input line 1272.
 
 (pdftex.def)             Requested size: 165.93446pt x 91.6114pt.
  [29
 
- <Docs/pictures/ppo_bc_ablation.pdf>]
-<pictures/heuristic_vs_ppo.pdf, id=1370, 915.50093pt x 265.07596pt>
+ <./pictures/ppo_bc_ablation.pdf>]
+<pictures/heuristic_vs_ppo.pdf, id=1373, 915.50093pt x 265.07596pt>
 File: pictures/heuristic_vs_ppo.pdf Graphic file (type pdf)
 <use pictures/heuristic_vs_ppo.pdf>
-Package pdftex.def Info: pictures/heuristic_vs_ppo.pdf  used on input line 1319
+Package pdftex.def Info: pictures/heuristic_vs_ppo.pdf  used on input line 1301
 .
 (pdftex.def)             Requested size: 301.14275pt x 87.19624pt.
  [30
 
- <Docs/pictures/heuristic_vs_ppo.pdf>]
-<pictures/simulation_env_dual_cam.png, id=1473, 1204.5pt x 542.025pt>
+ <./pictures/heuristic_vs_ppo.pdf>]
+<pictures/simulation_env_dual_cam.png, id=1476, 1204.5pt x 542.025pt>
 File: pictures/simulation_env_dual_cam.png Graphic file (type png)
 <use pictures/simulation_env_dual_cam.png>
 Package pdftex.def Info: pictures/simulation_env_dual_cam.png  used on input li
-ne 1343.
+ne 1325.
 (pdftex.def)             Requested size: 159.79204pt x 71.9048pt.
-<pictures/trial_execution_35.png, id=1474, 1027.84pt x 513.92pt>
+<pictures/trial_execution_35.png, id=1477, 1027.84pt x 513.92pt>
 File: pictures/trial_execution_35.png Graphic file (type png)
 <use pictures/trial_execution_35.png>
 Package pdftex.def Info: pictures/trial_execution_35.png  used on input line 13
-43.
+25.
 (pdftex.def)             Requested size: 159.79204pt x 79.89203pt.
  [31
 
- <Docs/pictures/simulation_env_dual_cam.png (PNG copy)> <Docs/pictures/trial_ex
-ecution_35.png (PNG copy)>]
-<pictures/simulation_trial_heuristic_thumb.png, id=1504, 642.4pt x 321.2pt>
+ <./pictures/simulation_env_dual_cam.png (PNG copy)> <./pictures/trial_executio
+n_35.png (PNG copy)>]
+<pictures/simulation_trial_heuristic_thumb.png, id=1507, 642.4pt x 321.2pt>
 File: pictures/simulation_trial_heuristic_thumb.png Graphic file (type png)
 <use pictures/simulation_trial_heuristic_thumb.png>
 Package pdftex.def Info: pictures/simulation_trial_heuristic_thumb.png  used on
- input line 1410.
+ input line 1392.
 (pdftex.def)             Requested size: 93.88568pt x 46.94687pt.
-<pictures/simulation_trial_ppo_thumb.png, id=1507, 642.4pt x 321.2pt>
+<pictures/simulation_trial_ppo_thumb.png, id=1510, 642.4pt x 321.2pt>
 File: pictures/simulation_trial_ppo_thumb.png Graphic file (type png)
 <use pictures/simulation_trial_ppo_thumb.png>
 Package pdftex.def Info: pictures/simulation_trial_ppo_thumb.png  used on input
- line 1410.
+ line 1392.
 (pdftex.def)             Requested size: 93.88568pt x 46.94687pt.
  [32
 
- <Docs/pictures/simulation_trial_heuristic_thumb.png (PNG copy)> <Docs/pictures
-/simulation_trial_ppo_thumb.png (PNG copy)>] [33
+ <./pictures/simulation_trial_heuristic_thumb.png (PNG copy)> <./pictures/simul
+ation_trial_ppo_thumb.png (PNG copy)>] [33
 
 ]
-LaTeX Font Info:    Calculating math sizes for size <5.2> on input line 1496.
+LaTeX Font Info:    Calculating math sizes for size <5.2> on input line 1478.
 
 
 LaTeX Font Warning: Font shape `OT1/cmss/m/n' in size <2.59999> not available
-(Font)              size <3> substituted on input line 1496.
+(Font)              size <3> substituted on input line 1478.
 
 
 LaTeX Font Warning: Font shape `OML/cmm/m/it' in size <3.63997> not available
-(Font)              size <5> substituted on input line 1496.
+(Font)              size <5> substituted on input line 1478.
 
 
 LaTeX Font Warning: Font shape `OML/cmm/m/it' in size <2.59999> not available
-(Font)              size <5> substituted on input line 1496.
+(Font)              size <5> substituted on input line 1478.
 
 
 LaTeX Font Warning: Font shape `OMS/cmsy/m/n' in size <3.63997> not available
-(Font)              size <5> substituted on input line 1496.
+(Font)              size <5> substituted on input line 1478.
 
 
 LaTeX Font Warning: Font shape `OMS/cmsy/m/n' in size <2.59999> not available
-(Font)              size <5> substituted on input line 1496.
+(Font)              size <5> substituted on input line 1478.
 
 LaTeX Font Info:    Font shape `OT1/cmss/b/n' in size <5.2> not available
-(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 1496
+(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 1478
 .
 LaTeX Font Info:    Font shape `OT1/cmss/b/n' in size <3.63997> not available
-(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 1496
+(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 1478
 .
 LaTeX Font Info:    Font shape `OT1/cmss/b/n' in size <2.59999> not available
-(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 1496
+(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 1478
 .
 
 LaTeX Font Warning: Font shape `OT1/cmss/bx/n' in size <2.59999> not available
-(Font)              size <3> substituted on input line 1496.
+(Font)              size <3> substituted on input line 1478.
 
 [34
 
@@ -1554,7 +1562,7 @@ LaTeX Font Warning: Font shape `OT1/cmss/bx/n' in size <2.59999> not available
 \tf@snm=\write9
 \openout9 = `presentation.snm'.
 
- (Docs/presentation.aux)
+ (./presentation.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
@@ -1568,13 +1576,13 @@ Package rerunfilecheck Info: File `presentation.out' has not changed.
 (rerunfilecheck)             Checksum: 2A9952C9E84885024740A140B75860C4;771.
  ) 
 Here is how much of TeX's memory you used:
- 40852 strings out of 474222
- 897602 string characters out of 5748733
+ 40858 strings out of 474222
+ 897884 string characters out of 5748733
  1948975 words of memory out of 5000000
- 62365 multiletter control sequences out of 15000+600000
+ 62372 multiletter control sequences out of 15000+600000
  580971 words of font info for 118 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 128i,19n,123p,1610b,1523s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 128i,19n,123p,1605b,1523s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmbsy5.pfb
 ></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr
 /share/texlive/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmex7.pfb></usr/s
@@ -1609,10 +1617,10 @@ texmf-dist/fonts/type1/public/amsfonts/symbols/msam7.pfb></usr/share/texlive/te
 xmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/share/texlive/tex
 mf-dist/fonts/type1/public/amsfonts/symbols/msbm5.pfb></usr/share/texlive/texmf
 -dist/fonts/type1/public/amsfonts/symbols/msbm7.pfb>
-Output written on Docs/presentation.pdf (36 pages, 4026942 bytes).
+Output written on presentation.pdf (36 pages, 4096478 bytes).
 PDF statistics:
- 1819 PDF objects out of 2073 (max. 8388607)
- 1297 compressed objects within 13 object streams
+ 1822 PDF objects out of 2073 (max. 8388607)
+ 1298 compressed objects within 13 object streams
  83 named destinations out of 1000 (max. 500000)
- 874 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 879 words of extra memory for PDF output out of 10000 (max. 10000000)
 

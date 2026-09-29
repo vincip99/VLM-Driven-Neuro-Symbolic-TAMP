@@ -3,10 +3,63 @@ import warnings
 import re
 from typing import List, Tuple, Optional
 from PIL import Image
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from .vlm_chat import VlmChat
 from src.llm2pddl.domains import Domain
 from src.llm2pddl.problem import Problem
+
+
+def _normalize_and_deduplicate(v):
+    if not isinstance(v, list):
+        return v
+    import ast
+    seen = set()
+    out = []
+    for x in v:
+        if isinstance(x, dict):
+            items = list(x.values())
+        else:
+            clean = str(x).strip()
+            if clean.startswith("{") and clean.endswith("}"):
+                try:
+                    parsed = ast.literal_eval(clean)
+                    items = list(parsed.values()) if isinstance(parsed, dict) else [clean]
+                except Exception:
+                    items = [clean]
+            else:
+                items = [clean]
+        for item in items:
+            clean_item = str(item).strip().strip("'\"")
+            norm = clean_item.lower().replace(" ", "_")
+            if norm and norm not in seen:
+                seen.add(norm)
+                out.append(clean_item)
+    return out
+
+
+def _merge_clarified_entities(new_items: List[str], prev_items: List[str]) -> List[str]:
+    """
+    Intelligently merges new items from clarification with previously identified items:
+    1. Preserves newly identified/refined items from new_items.
+    2. Keeps un-refined items from prev_items that were not mentioned or replaced.
+    3. Drops generic items from prev_items if a more specific version is in new_items (e.g. 'can' replaced by 'red can').
+    """
+    merged = list(_normalize_and_deduplicate(new_items))
+    if not prev_items:
+        return merged
+    if not merged:
+        return list(_normalize_and_deduplicate(prev_items))
+
+    for prev in prev_items:
+        p_clean = prev.strip().lower()
+        # Check if already present
+        if any(p_clean == m.strip().lower() for m in merged):
+            continue
+        # Check if prev was a generic form that is now refined in merged (e.g. 'can' -> 'red can')
+        is_refined = any(p_clean in m.strip().lower().split() for m in merged)
+        if not is_refined:
+            merged.append(prev)
+    return _normalize_and_deduplicate(merged)
 
 
 class ObjGrounding(BaseModel):
@@ -15,12 +68,22 @@ class ObjGrounding(BaseModel):
     """
     task_objects: List[str]
 
+    @field_validator("task_objects", mode="before")
+    @classmethod
+    def deduplicate(cls, v):
+        return _normalize_and_deduplicate(v)
+
 
 class LocGrounding(BaseModel):
     """
     Schema for target locations, receptacles, or drop zones.
     """
     target_locations: List[str]
+
+    @field_validator("target_locations", mode="before")
+    @classmethod
+    def deduplicate(cls, v):
+        return _normalize_and_deduplicate(v)
 
 
 class SceneGrounding(BaseModel):
@@ -29,6 +92,11 @@ class SceneGrounding(BaseModel):
     """
     task_objects: List[str]
     target_locations: List[str]
+
+    @field_validator("task_objects", "target_locations", mode="before")
+    @classmethod
+    def deduplicate(cls, v):
+        return _normalize_and_deduplicate(v)
 
 class RobotSkill(BaseModel):
     """
@@ -65,22 +133,31 @@ class AmbresStructured(VlmChat):
         # set the image(s) and construct the message for the vlm query
         if isinstance(image, list):
             self.set_image(image)
-            img_desc = f"Please analyze the attached {len(image)} images and extract the objects. "
+            img_desc = f"Please analyze the attached {len(image)} images and extract all relevant entities across all actions. "
         else:
             self.set_image([image])
-            img_desc = "Please analyze the attached image and extract the objects. "
+            img_desc = "Please analyze the attached image and extract all relevant entities across all actions. "
 
         user_text = (
             "Task Description: " + task_description + "\n" +
             img_desc +
-            "Return a JSON object containing:\n"
-            "- 'task_objects': ONLY manipulable items the robot must pick up or move (e.g. cans, cubes, fruits, mugs).\n"
-            "- 'target_locations': ONLY receptacles, containers, or destinations (e.g. sorting bin, pot, bowl, drawer, table).\n"
-            "Remember to keep all adjectives and colors exactly as I said them!"
+            "Carefully examine the entire task description from start to finish.\n"
+            "Return a strictly valid JSON object with the following schema:\n"
+            "{\n"
+            '  "task_objects": [...],\n'
+            '  "target_locations": [...]\n'
+            "}\n"
+            "CRITICAL INSTRUCTIONS:\n"
+            "1. 'task_objects': ONLY manipulable items the robot must pick up or move (e.g. cans, cubes, fruits, mugs). Include EVERY object mentioned across ALL steps!\n"
+            "2. 'target_locations': ONLY receptacles, containers, or destinations (e.g. sorting bin, pot, bowl, drawer, table) where items are placed.\n"
+            "3. Keep all adjectives and colors exactly as written in the task description (e.g., 'red can', 'yellow cube', 'blue can').\n"
+            "4. Do not omit any object or location mentioned in any step!"
         )
         self.add_message("user", user_text)
         text_out = self.inference(
-            self.messages
+            self.messages,
+            do_sample=False,
+            format_schema="json"
         )
         # get ai reply and save to self.messages
         self.add_message("assistant", text_out)
@@ -93,26 +170,47 @@ class AmbresStructured(VlmChat):
             task_objects = []
             target_locations = []
 
+        # Store last groundings for safe multi-turn clarification consolidation
+        self.last_task_objects = _normalize_and_deduplicate(task_objects)
+        self.last_target_locations = _normalize_and_deduplicate(target_locations)
+
         # ambiguity resolution
-        self.add_message("user", "Is the task ambiguous?")
+        ambig_query = (
+            "Analyze whether the task description is ambiguous given the visible objects and receptacles in the scene.\n"
+            "A task is AMBIGUOUS (task_ambiguous = true) if:\n"
+            "1. An extracted object or location is generic (e.g. 'can', 'cube', 'bin', 'box') and there are multiple candidate items of that type visible.\n"
+            "2. An item's color, size, or identity is underspecified so the robot cannot uniquely decide which one to grasp or place into.\n"
+            "If ambiguous, provide a clear, specific 'clarifying_question' asking the user to specify which entity they want.\n"
+            "If unambiguous, set task_ambiguous = false and clarifying_question = \"\".\n\n"
+            "Return strictly a JSON object with:\n"
+            "{\n"
+            '  "task_ambiguous": true/false,\n'
+            '  "explanation": "...",\n'
+            '  "clarifying_question": "..."\n'
+            "}"
+        )
+        self.add_message("user", ambig_query)
         text_out = self.inference(
             self.messages,
-            do_sample=False
+            do_sample=False,
+            format_schema="json"
         )
         # get ai reply (claryfing question) and save to self.messages
         self.add_message("assistant", text_out)
 
         try:
             data_out = json.loads(self.clean_json(text_out))
-        except json.decoder.JSONDecodeError:
+            if not isinstance(data_out, dict):
+                data_out = {"task_ambiguous": False, "clarifying_question": ""}
+        except Exception:
             warnings.warn("LLM Output broken, will output default response.")
             data_out = {"task_ambiguous": False, "clarifying_question": ""}
-        task_ambiguous = data_out["task_ambiguous"]
+        task_ambiguous = bool(data_out.get("task_ambiguous", False))
 
-        clarifying_question = data_out["clarifying_question"] if task_ambiguous else ""
+        clarifying_question = data_out.get("clarifying_question", "") if task_ambiguous else ""
         output = {
-            "task_objects": task_objects,
-            "target_locations": target_locations,
+            "task_objects": self.last_task_objects,
+            "target_locations": self.last_target_locations,
             "task_ambiguous": task_ambiguous,
             "clarifying_question": clarifying_question,
         }
@@ -121,17 +219,30 @@ class AmbresStructured(VlmChat):
     def handle_query_dict(self, input_data: dict) -> dict:
         task_description: str = input_data["task_description"]
         image = Image.open(input_data["image_path"])
-        image = image.reduce(4)  # Downsample
+        # Maintain high resolution for accurate perception (only scale if exceeding 1024)
+        if max(image.size) > 1024:
+            image.thumbnail((1024, 1024))
         output = self.handle_query(task_description, image)
         return output
 
     def handle_response(self, response: str) -> dict:
         """
-        Handle the response from the VLM.
+        Handle user clarification response and consolidate with previously confirmed entities.
         """
-        self.add_message("user", response)
+        clarification_msg = (
+            f"User Clarification: {response}\n\n"
+            "Based on the original task, the image, and this clarification, provide the FINAL, COMPLETE JSON "
+            "containing ALL grounded entities across the entire task:\n"
+            "{\n"
+            '  "task_objects": [...],\n'
+            '  "target_locations": [...]\n'
+            "}"
+        )
+        self.add_message("user", clarification_msg)
         text_out = self.inference(
-            self.messages
+            self.messages,
+            do_sample=False,
+            format_schema="json"
         )
         self.add_message("assistant", text_out)
         try:
@@ -141,9 +252,23 @@ class AmbresStructured(VlmChat):
         except Exception:
             task_objects = []
             target_locations = []
+
+        norm_objs = _normalize_and_deduplicate(task_objects)
+        norm_locs = _normalize_and_deduplicate(target_locations)
+
+        prev_objs = getattr(self, "last_task_objects", [])
+        prev_locs = getattr(self, "last_target_locations", [])
+
+        # Intelligently merge without dropping previously confirmed objects or receptacles
+        final_objs = _merge_clarified_entities(norm_objs, prev_objs)
+        final_locs = _merge_clarified_entities(norm_locs, prev_locs)
+
+        self.last_task_objects = final_objs
+        self.last_target_locations = final_locs
+
         output = {
-            "task_objects": task_objects,
-            "target_locations": target_locations,
+            "task_objects": final_objs,
+            "target_locations": final_locs,
         }
         return output
 
@@ -363,24 +488,34 @@ CRITICAL RULES:
 2. DO NOT mix locations into task_objects. Items being picked/held are 'task_objects'; receptacles being placed into are 'target_locations'.
 3. PRESERVE ADJECTIVES: You MUST keep all colors, sizes, and descriptive words exactly as the user wrote them (e.g., "red can", "sorting bin").
 4. If the task is ambiguous, your clarifying question MUST specifically mention the objects or locations causing the confusion.
+5. COMPOUND AND MULTI-STEP COMMANDS: If the command contains multiple actions or steps (e.g., "Put X in Y, then put Z in W..."):
+   - Extract EVERY SINGLE manipulable object mentioned across ALL steps into "task_objects". Do NOT omit any!
+   - Extract EVERY unique target receptacle mentioned across ALL steps into "target_locations". Do NOT duplicate entries in the JSON array.
 
 EXAMPLES OF HOW YOU MUST THINK:
 
 [Example 1 - Ambiguous]
-User: NEW TASK DESCRIPTION: Put the banana in the drawer.
-Please analyze the attached image and extract the objects. Keep adjectives.
-Assistant: {"task_objects": ["banana"], "target_locations": ["drawer"]}
-User: Is the task ambiguous?
-Assistant: {"task_ambiguous": true, "explanation": "There are multiple drawers visible.", "clarifying_question": "There are three drawers. Which one do you mean?"}
-User: The middle drawer.
-Assistant: {"task_objects": ["banana"], "target_locations": ["middle drawer"]}
+User: Task Description: Put the can in the bin.
+Please analyze the attached image and extract all relevant entities across all actions.
+Assistant: {"task_objects": ["can"], "target_locations": ["bin"]}
+User: Is the task ambiguous given the visible scene? Return a JSON object with: {"task_ambiguous": true/false, "explanation": "...", "clarifying_question": "..."}
+Assistant: {"task_ambiguous": true, "explanation": "There are multiple cans (red can, blue can) visible.", "clarifying_question": "There are multiple cans on the table. Which can would you like me to move?"}
+User: The red can.
+Assistant: {"task_objects": ["red can"], "target_locations": ["bin"]}
 
-[Example 2 - Clear]
-User: NEW TASK DESCRIPTION: Put the green mug in the microwave.
-Please analyze the attached image and extract the objects. Keep adjectives.
+[Example 2 - Clear Single-Step]
+User: Task Description: Put the green mug in the microwave.
+Please analyze the attached image and extract all relevant entities across all actions.
 Assistant: {"task_objects": ["green mug"], "target_locations": ["microwave"]}
-User: Is the task ambiguous?
-Assistant: {"task_ambiguous": false, "explanation": "There is only one microwave visible.", "clarifying_question": ""}
+User: Is the task ambiguous given the visible scene? Return a JSON object with: {"task_ambiguous": true/false, "explanation": "...", "clarifying_question": "..."}
+Assistant: {"task_ambiguous": false, "explanation": "There is only one green mug and one microwave visible.", "clarifying_question": ""}
+
+[Example 3 - Multi-Step Chained Command]
+User: Task Description: Put the red can in the sorting bin, the yellow cube in the pot, and the blue can in the sorting bin.
+Please analyze the attached image and extract all relevant entities across all actions.
+Assistant: {"task_objects": ["red can", "yellow cube", "blue can"], "target_locations": ["sorting bin", "pot"]}
+User: Is the task ambiguous given the visible scene? Return a JSON object with: {"task_ambiguous": true/false, "explanation": "...", "clarifying_question": "..."}
+Assistant: {"task_ambiguous": false, "explanation": "The red can, yellow cube, blue can, sorting bin, and pot are all uniquely identified in the scene.", "clarifying_question": ""}
 
 INSTRUCTIONS: 
 Look at the NEW image and answer based ONLY on the NEW task description provided by the user below."""

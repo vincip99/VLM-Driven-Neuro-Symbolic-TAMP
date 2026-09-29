@@ -40,12 +40,12 @@ class CustomArena(TableArena):
 
     def _add_cameras(self):
         """Adds both the VLM top-down camera and the human debug camera."""
-        # Top-Down VLM Camera (Placed 1 meter above the table)
-        cam_height = self.table_offset[2] + 1.0
+        # Top-Down VLM Camera (Placed 1.35 meters above the table, centered over workspace)
+        cam_height = self.table_offset[2] + 1.35
         top_down_cam = ET.Element(
             "camera",
             name="top_down_vlm",
-            pos=f"0 0 {cam_height}",
+            pos=f"-0.05 -0.10 {cam_height}",
             mode="fixed",
             quat="1 0 0 0" 
         )
