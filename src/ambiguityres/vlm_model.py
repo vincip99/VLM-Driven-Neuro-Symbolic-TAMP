@@ -98,20 +98,6 @@ class SceneGrounding(BaseModel):
     def deduplicate(cls, v):
         return _normalize_and_deduplicate(v)
 
-class RobotSkill(BaseModel):
-    """
-    This class defines the schema of a robot skill.
-    """
-    skill: str
-    target_object: ObjGrounding
-    goal: str
-
-class RobotTask(BaseModel):
-    """
-    This class defines the schema of a robot task.
-    """
-    reasoning: str
-    skills: List[RobotSkill]
 
 class AmbiguityReasoning(BaseModel):
     task_ambiguous: bool
