@@ -4,23 +4,19 @@
 [![Robosuite 1.5.1](https://img.shields.io/badge/robosuite-1.5.1-orange.svg)](https://robosuite.ai/)
 [![Planner Fast-Downward](https://img.shields.io/badge/planner-Fast--Downward-green.svg)](https://www.fast-downward.org/)
 [![Executive py_trees](https://img.shields.io/badge/executive-py__trees-red.svg)](https://py-trees.readthedocs.io/)
-[![License MIT](https://img.shields.io/badge/license-MIT-lightgrey.svg)](LICENSE)
 
 ---
 
-## 📖 Introduction
-
-Autonomous robotic manipulation in unstructured, human-centric environments requires reasoning across multiple levels of abstraction: from high-level semantic intent expressed in natural language to low-level continuous joint torques. Traditional **Task and Motion Planning (TAMP)** frameworks offer mathematical soundness and completeness, but they rely on fully specified, noise-free symbolic states and formal goal specifications—making them brittle and inaccessible to non-expert human users. Conversely, modern **Vision-Language Models (VLMs)** and Large Language Models (LLMs) possess vast open-world knowledge and visual grounding capabilities, but suffer from spatial hallucinations, syntax invalidity, and a total absence of formal safety guarantees when tasked with direct robot control.
-
-This project introduces a **Hierarchical Neuro-Symbolic Task and Motion Planning (TAMP) Architecture** implemented on a simulated 7-DOF **Franka Emika Panda** robotic arm in **MuJoCo / Robosuite**. The system bridges multimodal foundation models with formal classical planning and closed-loop continuous manipulation by organizing reasoning into three decoupled yet tightly coordinated layers:
+## Introduction
+This project introduces a **Hierarchical Neuro-Symbolic Task and Motion Planning (TAMP) Architecture** implemented on a simulated 7-DOF **Franka Emika Panda** robotic arm in **MuJoCo / Robosuite**. The system bridges multimodal foundation models with formal classical planning and closed-loop continuous manipulation by organizing reasoning into three layers:
 
 1. **Deliberative Layer:** A multimodal perception and reasoning front-end powered by **Qwen 2.5-VL** and **LLaMA 3**. It visually grounds the scene, interactively resolves semantic and referential ambiguities with the human user via dialogue, and synthesizes syntactically verified Planning Domain Definition Language (**PDDL**) problem files. The problem is then solved by the **Fast Downward** heuristic search planner to guarantee causal plan validity.
-2. **Executive Layer:** A reactive dispatch engine powered by **Behavior Trees (`py_trees`)**. It dynamically compiles linear PDDL plans into tick-based hierarchical subtrees that continuously monitor environment pre-conditions and post-conditions, handle runtime perturbations, and execute recovery behaviors.
-3. **Execution & Control Layer:** A hybrid continuous control stack combining sampling-based 3D Cartesian motion planning (**`TaskSpaceRRT`**) for obstacle-free workspace transit with closed-loop manipulation policies trained via **Proximal Policy Optimization (PPO)** bootstrapped with Behavior Cloning (BC), executed through an **Operational Space Controller (OSC)** at 500 Hz.
+2. **Executive Layer:** A reactive dispatch engine powered by **Behavior Trees (`py_trees`)**. It dynamically compiles linear PDDL plans into tick-based hierarchical subtrees that continuously monitor environment pre-conditions and post-conditions and execute recovery behaviors.
+3. **Control Layer:** A hybrid continuous control stack combining sampling-based 3D Cartesian motion planning (**`TaskSpaceRRT`**) for obstacle-free workspace transit with closed-loop manipulation policies trained via **Proximal Policy Optimization (PPO)** bootstrapped with Behavior Cloning (BC), executed through an **Operational Space Controller (OSC)** at 500 Hz.
 
 ---
 
-## 🏛️ System Architecture
+## System Architecture
 
 The end-to-end framework decouples semantic reasoning, symbolic deliberation, reactive task monitoring, and continuous robotic execution into modular subsystems with bidirectional feedback loops.
 
@@ -28,7 +24,7 @@ The end-to-end framework decouples semantic reasoning, symbolic deliberation, re
 
 ### Architectural Walkthrough
 
-* **Multimodal Inputs:** The robot observes the workspace via a dual-camera setup (an orthographic top-down camera at $512 \times 512$ for scene grounding and a frontal perspective camera for visual monitoring) alongside free-form natural language instructions from the user (e.g., *"Put the red can in the sorting bin and the cube in the pot"*).
+* **Multimodal Inputs:** The robot observes the workspace via a dual-camera setup (top-down camera at $512 \times 512$ for scene grounding and a frontal camera for visual monitoring) alongside free-form natural language instructions from the user (e.g., *"Put the red can in the sorting bin and the cube in the pot"*).
 * **1. Perception & Ambiguity Resolution (Qwen 2.5-VL 3B):**
   * **Visual Grounding:** Extracts task objects, receptacles, and geometric scene layout into structured semantic symbols.
   * **Ambiguity Detection & Clarification Dialog:** Detects referential ambiguity (e.g., multiple objects matching the description) or spatial ambiguity, initiating an interactive clarification dialogue to disambiguate user intent *before* committing to action.
@@ -46,7 +42,7 @@ The end-to-end framework decouples semantic reasoning, symbolic deliberation, re
 
 ---
 
-## 🔬 Key Scientific Contributions: Goals & Methods
+## Key Scientific Contributions: Goals & Methods
 
 | Contribution Area | Core Goal & Challenge | Method & Solution |
 | :--- | :--- | :--- |
@@ -57,7 +53,7 @@ The end-to-end framework decouples semantic reasoning, symbolic deliberation, re
 
 ---
 
-## 📊 Experimental Results & Demonstrations
+## Experimental Results & Demonstrations
 
 ### 1. Symbolic PDDL Problem Generation & Verification Benchmark
 
@@ -66,10 +62,10 @@ The deliberative layer was evaluated across **28 distinct tabletop simulation sc
 | Evaluation Metric | Benchmark Result | Target / Significance |
 | :--- | :--- | :--- |
 | **Logged Benchmark Trials** | **28** | Multi-tier evaluation suite |
-| **1st-Pass Solver Feasibility** | **19 / 28 (67.9%)** | Raw LLM output with Pydantic typing |
-| **Success after Feedback Loop** | **27 / 28 (96.4%)** | Self-repair within $\le 5$ retries |
+| **1st-Pass Solver Feasibility** | **26 / 28 (92.9%)** | Raw LLM output with Pydantic typing |
+| **Success after Feedback Loop** | **28 / 28 (100%)** | Self-repair within $\le 5$ retries |
 | **Fast Downward Parser Errors** | **0% (0 / 28)** | Zero syntax or domain crashes |
-| **Avg. Symbolic Solve Time** | **0.084 s** | Real-time causal gatekeeper ($< 0.1\,\text{s}$) |
+| **Avg. Symbolic Solve Time** | **0.086 s** | Real-time causal gatekeeper ($< 0.1\,\text{s}$) |
 | **Avg. VLM Grounding Time** | **0.473 s** | Zero-shot grounding via Qwen 2.5-VL 3B |
 | **Avg. LLM 1st-Pass Time** | **0.663 s** | Local LLaMA 3 inference via Ollama |
 | **Max Problem Complexity** | **4 objects (8 plan steps)** | Long-horizon sequential sorting |
@@ -107,7 +103,7 @@ To validate downstream physical executability, synthesized Behavior Tree plans w
 
 ---
 
-## 📂 Repository Structure
+## Repository Structure
 
 ```text
 vlm_pddl_tamp/
@@ -132,7 +128,7 @@ vlm_pddl_tamp/
 
 ---
 
-## 🚀 Quickstart & Reproduction
+## Quickstart & Reproduction
 
 ### 1. Environment Setup
 
@@ -206,7 +202,7 @@ Run isolated tests to verify individual components:
 
 ---
 
-## 📊 Experimental Specifications
+## Experimental Specifications
 
 * **Robot Platform:** 7-DOF Franka Emika Panda with 2-finger parallel jaw gripper.
 * **Physics Simulator:** MuJoCo 3.x / Robosuite 1.5.1 operating at 20 Hz control frequency (500 Hz physics substeps).
