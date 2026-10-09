@@ -8,56 +8,58 @@
 ---
 
 ## Introduction
-This project introduces a **Hierarchical Neuro-Symbolic Task and Motion Planning (TAMP) Architecture** implemented on a simulated 7-DOF **Franka Emika Panda** robotic arm in **MuJoCo / Robosuite**. The system bridges multimodal foundation models with formal classical planning and closed-loop continuous manipulation by organizing reasoning into three layers:
+This project introduces a **Neuro-Symbolic Task and Motion Planning (TAMP) Architecture** implemented on a simulated 7-DOF **Franka Emika Panda** robotic arm in **MuJoCo / Robosuite**. The system use multimodal foundation models to construct a formal classical planning problem, while orchestrating and executing a continuous navigation and manipulation pipeline, by decoupling the structure into three layers:
 
 1. **Deliberative Layer:** A multimodal perception and reasoning front-end powered by **Qwen 2.5-VL** and **LLaMA 3**. It visually grounds the scene, interactively resolves semantic and referential ambiguities with the human user via dialogue, and synthesizes syntactically verified Planning Domain Definition Language (**PDDL**) problem files. The problem is then solved by the **Fast Downward** heuristic search planner to guarantee causal plan validity.
-2. **Executive Layer:** A reactive dispatch engine powered by **Behavior Trees (`py_trees`)**. It dynamically compiles linear PDDL plans into tick-based hierarchical subtrees that continuously monitor environment pre-conditions and post-conditions and execute recovery behaviors.
-3. **Control Layer:** A hybrid continuous control stack combining sampling-based 3D Cartesian motion planning (**`TaskSpaceRRT`**) for obstacle-free workspace transit with closed-loop manipulation policies trained via **Proximal Policy Optimization (PPO)** bootstrapped with Behavior Cloning (BC), executed through an **Operational Space Controller (OSC)** at 500 Hz.
+2. **Executive Layer:** A reactive orchestrator engine, based on **Behavior Trees** logic, built with **(`py_trees`)**. It dynamically compiles PDDL plans into hierarchical subtrees that continuously monitor goal pre-conditions and post-conditions, as well as action post-conditions, eventually executing recovery behaviors.
+3. **Reactive Layer:** A control stack implementing high level skills in continuous time, by implementing probabilistic motion planning methods, like (**`TaskSpaceRRT`**), for Cartesian navigation and obstacle avoidance, while usiing closed-loop policies trained via **Proximal Policy Optimization (PPO)**, bootstrapped with Behavior Cloning (BC), for manipulation tasks. Joint Torques are then computed through an **Operational Space Controller (OSC)** at 500 Hz.
 
 ---
 
+## AI Policy
+
+The project was developed by the author through an iterative process of implementation. Existing codebases and library implementations were used as technical references, while different tools and frameworks were evaluated to construct the core system architecture. Agentic AI tools were employed to assist with debugging, identifying implementation issues, and integrating components. The resulting codebase was refined through experimentation and testing.
+
 ## System Architecture
 
-The end-to-end framework decouples semantic reasoning, symbolic deliberation, reactive task monitoring, and continuous robotic execution into modular subsystems with bidirectional feedback loops.
+The hierarchical framework decouples semantic reasoning, symbolic deliberation, reactive task monitoring, and continuous robotic execution into modular subsystems with bidirectional feedback loops.
 
 ![VLM-TAMP System Architecture](Docs/pictures/vlm-tamp-diagram.png)
 
-### Architectural Walkthrough
-
 * **Multimodal Inputs:** The robot observes the workspace via a dual-camera setup (top-down camera at $512 \times 512$ for scene grounding and a frontal camera for visual monitoring) alongside free-form natural language instructions from the user (e.g., *"Put the red can in the sorting bin and the cube in the pot"*).
 * **1. Perception & Ambiguity Resolution (Qwen 2.5-VL 3B):**
-  * **Visual Grounding:** Extracts task objects, receptacles, and geometric scene layout into structured semantic symbols.
-  * **Ambiguity Detection & Clarification Dialog:** Detects referential ambiguity (e.g., multiple objects matching the description) or spatial ambiguity, initiating an interactive clarification dialogue to disambiguate user intent *before* committing to action.
+  * **Visual Grounding:** Extracts task objects, task locations, and scene layout into structured semantic symbols.
+  * **Ambiguity Detection & Clarification Dialog:** Detects referential ambiguity (e.g., multiple objects matching the description) or spatial ambiguity, initiating a clarification dialogue to disambiguate user intent before the plan generation.
 * **2. Deliberation & Plan Verification (LLaMA 3 + Fast Downward):**
-  * **PDDL Problem Synthesizer:** Generates structured PDDL problem definitions $\mathcal{P} = (\mathcal{D}, s_0, G)$ adhering to the STRIPS manipulation domain.
-  * **Domain Validator & Auto-Correction Loop:** Uses Pydantic schema validation to catch predicate hallucinations and typing mismatches. If invalid, the exact solver error trace is reflected back to the LLM for automated repair (achieving 100% solver feasibility).
-  * **Fast Downward Planner:** Computes a causally sound, sequential action plan $\pi = \langle a_1, \dots, a_n \rangle$ via heuristic forward search in $<0.085\,\text{s}$.
+  * **PDDL Problem Synthesizer:** Generates structured PDDL problem definitions $\mathcal{P} = (\mathcal{D}, s_0, G)$ adhering to the offline generated manipulation domain.
+  * **Domain Validator & Auto-Correction Loop:** Uses Pydantic schema validation to catch predicate hallucinations and typing mismatches. If invalid, the exact solver error trace is feed-back to the LLM for automated repair.
+  * **Fast Downward Planner:** Computes a causal action plan $\pi = \langle a_1, \dots, a_n \rangle$ via heuristic forward search in $<0.085\,\text{s}$.
 * **3. Executive Layer (py_trees Behavior Tree):**
   * **BT Plan Builder:** Translates the discrete symbolic action plan into a reactive Behavior Tree structure.
   * **BT Runtime Engine:** Ticks the execution graph at 20 Hz, continuously inspecting pre-conditions and post-conditions against ground-truth simulation state.
 * **4. Task & Motion Planning (TAMP Execution Layer):**
-  * **TaskSpaceRRT:** Computes collision-free 3D Cartesian trajectories around table obstacles (pots, bins, other objects) with bounding-box collision detection and path shortcutting.
+  * **TaskSpaceRRT:** Computes collision-free 3D Cartesian trajectories around obstacles (pots, bins, other objects) with bounding-box collision detection and path shortcutting.
   * **Manipulation Skill Engine:** Executes contact-rich grasping and lifting via a hybrid policy (deep RL trained with PPO or deterministic heuristic state machines).
   * **Operational Space Controller (OSC):** Decouples task dynamics to translate Cartesian velocity commands into smooth 7-DOF joint torques $\tau$ at 500 Hz on the simulated Franka Emika Panda.
 
 ---
 
-## Key Scientific Contributions: Goals & Methods
+## Key Features: Goals & Methods
 
-| Contribution Area | Core Goal & Challenge | Method & Solution |
+| Contribution Area | Core Goal | Method |
 | :--- | :--- | :--- |
-| **1. Multimodal Ambiguity Resolution** | **Goal:** Prevent silent failures and misgrounded actions caused by underspecified natural language instructions.<br>*Challenge:* Commands like *"pick the can"* fail in cluttered scenes with multiple cans. Raw VLMs often arbitrarily guess or hallucinate. | **Method:** Visual grounding using **Qwen 2.5-VL** paired with an explicit ambiguity detection condition. When semantic under-specification is recognized, the system triggers an interactive, multi-turn clarification loop that queries the human user, grounding the verified target object before plan synthesis. |
-| **2. Neuro-Symbolic Translation & Auto-Repair** | **Goal:** Guarantee that LLM-generated task specifications produce valid, solvable symbolic planning problems.<br>*Challenge:* LLMs frequently hallucinate undefined predicates, produce type mismatches, or generate ill-formed PDDL that crashes classical solvers. | **Method:** A closed-loop reflection architecture. Candidate problems are parsed through **Pydantic schemas** (`Problem`, `PDDLObject`, `Predicate`) and validated against domain definitions. In case of syntax or domain errors, programmatic failure traces are fed back to **LLaMA 3** (up to 5 retries), reaching **100% solver feasibility** across 28 empirical benchmark trials with **0% parser crashes**. |
-| **3. Reactive Execution via Behavior Trees** | **Goal:** Bridge static linear plans with the dynamic, unpredictable reality of physical robotic manipulation.<br>*Challenge:* Open-loop PDDL plans cannot react to unexpected object slips, external perturbations, or failed grasps. | **Method:** Dynamic compilation of symbolic plans into hierarchical **Behavior Trees (`py_trees`)**. Each symbolic action (`pick`, `place`) is encapsulated within a fallback-guarded subtree with continuous pre-condition evaluation, active state monitoring, and automated retry mechanisms. |
-| **4. Safe Transit & Robust Contact Control** | **Goal:** Synthesize smooth collision-free paths in cluttered workspaces while ensuring reliable physical grasping.<br>*Challenge:* Linear Cartesian interpolation collides with tall receptacle rims, while pure RL struggles to navigate global workspace distances. | **Method:** A hierarchical hybrid controller: global 3D Cartesian path generation with **`TaskSpaceRRT`** (bounding-box obstacle checks, 20% goal bias, greedy shortcutting) combined with an **Operational Space Controller (OSC)** and **PPO reinforcement learning** policies bootstrapped with Behavior Cloning (BC) for contact-rich grasping. |
+| **1. Multimodal Ambiguity Resolution** | **Goal:** Prevent silent failures and misgrounded actions caused by underspecified natural language instructions.<br>*Challenge:* Commands like *"pick the can"* fail in scenes with multiple cans. Raw VLMs often arbitrarily guess or hallucinate. | **Method:** Visual grounding using **Qwen 2.5-VL** paired with an explicit ambiguity detection condition. When semantic under-specification is recognized, the system triggers an interactive, multi-turn clarification loop that queries the human user, grounding the verified target object before plan synthesis. |
+| **2. Neuro-Symbolic Translation & Auto-Repair** | **Goal:** Guarantee that LLM-generated task specifications produce valid symbolic planning problems.<br>*Challenge:* LLMs frequently hallucinate undefined predicates, produce type mismatches, or generate ill-formed PDDL that crashes classical solvers. | **Method:** A closed-loop reflection architecture. Candidate problems are parsed through **Pydantic schemas** (`Problem`, `PDDLObject`, `Predicate`) and validated against domain definitions. In case of syntax or domain errors, programmatic failure traces are fed back to **LLaMA 3**. |
+| **3. Reactive Execution via Behavior Trees** | **Goal:** Convert symbolic plans into dynamic robotic actions, trough a skills registry and orchestrate the control layer.<br>*Challenge:* Open-loop PDDL plans cannot react to unexpected object slips, external perturbations, or failed grasps. | **Method:** Dynamic compilation of symbolic plans into **Behavior Trees (`py_trees`)**. Each symbolic action (`pick`, `place`) is encapsulated within a fallback-guarded subtree with continuous post-condition evaluation, active state monitoring, and automated retry mechanisms. |
+| **4. Navigation and Robust Manipulation** | **Goal:** Synthesize smooth collision-free paths in cluttered workspaces while ensuring reliable physical grasping.<br>*Challenge:* Linear Cartesian interpolation collides with tall receptacle rims, while pure RL struggles to navigate global workspace distances. | **Method:** A hierarchical hybrid controller: global 3D Cartesian path generation with **`TaskSpaceRRT`** (bounding-box obstacle checks, 20% goal bias, greedy shortcutting) combined with an **Operational Space Controller (OSC)** and **PPO reinforcement learning** policies bootstrapped with Behavior Cloning (BC) for contact-rich grasping. |
 
 ---
 
-## Experimental Results & Demonstrations
+## Experimental Results
 
 ### 1. Symbolic PDDL Problem Generation & Verification Benchmark
 
-The deliberative layer was evaluated across **28 distinct tabletop simulation scenarios** spanning single-object tasks, multi-object relocations, sequential receptacle sorting (pots and bins), and ambiguous human phrasing.
+The deliberative layer was evaluated across **28 distinct simulation scenarios** spanning single-object tasks, multi-object relocations, sequential receptacle sorting (pots and bins), and ambiguous human phrasing.
 
 | Evaluation Metric | Benchmark Result | Target / Significance |
 | :--- | :--- | :--- |
@@ -150,7 +152,7 @@ pip install -r requirements.txt
 pip install -e ./robosuite -e ./robomimic --no-deps --config-settings editable_mode=compat
 ```
 
-### 2. End-to-End Simulation (VLM + PDDL + BT + RRT)
+### 2. Full-Stack Simulation (VLM + PDDL + BT + RRT)
 
 Run the full interactive pipeline with live OpenCV dual-camera visualization (Frontal Perspective + Overhead Top-Down VLM view):
 
@@ -211,11 +213,12 @@ Run isolated tests to verify individual components:
   * `frontview`: Oblique perspective camera ($512 \times 512$) for execution monitoring and video logging.
 * **Classical Planner:** Fast Downward with `lama-first` heuristic search engine.
 * **Motion Planner:** 3D Cartesian `TaskSpaceRRT` (bounding-box obstacle collision checking, step size $\delta = 0.05\,\text{m}$, 20% goal bias, path shortcutting).
-* **Low-Level Controller:** Operational Space Controller (OSC) impedance control.
+* **Low-Level Controller:** O
+perational Space Controller (OSC) impedance control.
 
 ---
 
-## 📚 Key References
+## Key References
 
 1. **E. Chisari, J. O. von Hartz, F. Despinoy, and A. Valada**, *"Robotic Task Ambiguity Resolution via Natural Language Interaction"*, arXiv:2504.17748 [cs.RO], 2025.
 2. **B. Liu, Y. Jiang, X. Zhang, Q. Liu, S. Zhang, and P. Stone**, *"LLM+P: Empowering Large Language Models with Optimal Planning Proficiency"*, arXiv:2304.11477 [cs.AI], 2023.
