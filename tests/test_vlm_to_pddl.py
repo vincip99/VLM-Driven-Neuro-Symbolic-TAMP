@@ -18,7 +18,7 @@ from src.ambiguityres.vlm_model import (
 from src.llm2pddl.domains import PDDLenv
 
 def main():
-    # 1. Setup
+    # Setup
     print("Initializing vision pipeline (Qwen)...")
     vision_pipeline = ambresFewShotPrompt(vlm_name="qwen2.5vl:3b")
     vision_pipeline.reset_chat() 
@@ -42,9 +42,9 @@ def main():
     )
     obs = env.reset()
     
-    # Print physical objects configured in the simulator scene
+    # Print physical objects from id configured in the simulator scene env
     scene_objects = [obj.name for obj in getattr(env, "objects", [])]
-    print(f"\n🌍 [Physical Scene Objects in Simulator ({len(scene_objects)})]:")
+    print(f"\n [Physical Scene Objects in Simulator ({len(scene_objects)})]:")
     for idx, name in enumerate(scene_objects, 1):
         print(f"   {idx}. {name}")
     
@@ -57,7 +57,7 @@ def main():
 
     print(f"\n[Task]: {initial_task}")
 
-    # 2. Ambiguity Loop & Visual Grounding (SceneGrounding)
+    # Visual grounding and Ambiguity Loop
     input_data = {
         "task_description": initial_task,
         "image_path": image_path
@@ -70,11 +70,11 @@ def main():
         task_objects=result.get("task_objects", []),
         target_locations=result.get("target_locations", [])
     )
-    print(f"\n🔍 [VLM Visual Grounding (SceneGrounding Schema)]:")
-    print(f"   📦 Manipulable Objects (ObjGrounding): {scene_grounding.task_objects}")
+    print(f"\n[VLM Visual Grounding (SceneGrounding Schema)]:")
+    print(f"Manipulable Objects (ObjGrounding): {scene_grounding.task_objects}")
     for idx, name in enumerate(scene_grounding.task_objects, 1):
         print(f"      ({idx}) Object: '{name}'")
-    print(f"   📍 Target Locations   (LocGrounding): {scene_grounding.target_locations}")
+    print(f"Target Locations   (LocGrounding): {scene_grounding.target_locations}")
     for idx, name in enumerate(scene_grounding.target_locations, 1):
         print(f"      ({idx}) Location: '{name}'")
     
@@ -89,19 +89,19 @@ def main():
             task_objects=result.get("task_objects", []),
             target_locations=result.get("target_locations", [])
         )
-        print(f"\n🔍 [Post-Clarification Scene Grounding]:")
-        print(f"   📦 Objects:   {scene_grounding.task_objects}")
-        print(f"   📍 Locations: {scene_grounding.target_locations}")
+        print(f"\n[Post-Clarification Scene Grounding]:")
+        print(f"   Objects:   {scene_grounding.task_objects}")
+        print(f"   Locations: {scene_grounding.target_locations}")
     
     final_objects = list(scene_grounding.task_objects)
     final_locations = list(scene_grounding.target_locations)
 
-    print(f"\n🎯 [Final Grounded Entities for PDDL Problem Synthesis]:")
-    print(f"   📦 Objects (type 'obj'):")
+    print(f"\n[Final Grounded Entities for PDDL Problem Synthesis]:")
+    print(f"Objects (type 'obj'):")
     for idx, name in enumerate(final_objects, 1):
         pddl_name = name.strip().replace(" ", "_")
         print(f"      ({idx}) Natural Name: '{name}'  ==>  PDDL Symbol: '{pddl_name}'")
-    print(f"   📍 Locations (type 'location'):")
+    print(f"Locations (type 'location'):")
     for idx, name in enumerate(final_locations, 1):
         pddl_name = name.strip().replace(" ", "_")
         print(f"      ({idx}) Natural Name: '{name}'  ==>  PDDL Symbol: '{pddl_name}'")
@@ -147,7 +147,7 @@ def main():
 
     with open(trial_filepath, "w") as f:
         f.write(problem_pddl)
-    print(f"\n📁 Saved trial problem file to: {trial_filepath}")
+    print(f"\nSaved trial problem file to: {trial_filepath}")
 
     # Also keep canonical problem.pddl in experiments/generated_problems/
     with open(os.path.join(gen_problems_dir, "problem.pddl"), "w") as f:

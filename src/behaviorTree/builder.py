@@ -13,12 +13,10 @@ from .skills import SKILL_REGISTRY
 from .conditions import CONDITION_REGISTRY, PDDLGoalCheck, PDDLCondition
 
 
-# ---------------------------------------------------------------------------
-# PDDL Plan Parsing & Compilation
-# ---------------------------------------------------------------------------
 def parse_pddl_action(line: str) -> Optional[tuple[str, List[str]]]:
     """
-    Parse a single PDDL plan action line.
+    Parse a single PDDL plan action line, in order to extract needed info
+    and remove unwanted garbage (step numbers, commas, ecc.).
 
     Examples:
         "(pick yellow_cube)"      -> ("pick", ["yellow_cube"])
@@ -122,9 +120,7 @@ def pddl_plan_to_sequence(plan: Union[str, List[str]], env=None) -> py_trees.com
     return sequence
 
 
-# ---------------------------------------------------------------------------
-# Goal-Guarded Wrapper
-# ---------------------------------------------------------------------------
+
 def wrap_with_goal_check(
     sequence: Optional[py_trees.behaviour.Behaviour] = None,
     env=None,
@@ -164,9 +160,6 @@ def wrap_with_goal_check(
     return root
 
 
-# ---------------------------------------------------------------------------
-# Tree Visualization & Rendering
-# ---------------------------------------------------------------------------
 def render_bt(
     root: py_trees.behaviour.Behaviour,
     name: str = "behavior_tree",
@@ -212,9 +205,6 @@ def render_bt(
     return png_path
 
 
-# ---------------------------------------------------------------------------
-# Main Entrypoint
-# ---------------------------------------------------------------------------
 def build_bt_from_pddl_plan(
     plan: Union[str, List[str]],
     env=None,

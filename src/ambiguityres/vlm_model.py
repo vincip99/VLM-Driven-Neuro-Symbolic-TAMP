@@ -301,24 +301,24 @@ class AmbresStructured(VlmChat):
         )
 
         few_shot_assistant = """{
-  "problem": {
-    "problem_name": "manipulation-task",
-    "domain_name": "manipulation",
-    "objects": [
-      {"name": "can_A", "type": "obj"},
-      {"name": "cube_B", "type": "obj"},
-      {"name": "bin", "type": "location"}
-    ],
-    "init": [
-      {"name": "on-table", "parameters": ["can_A"]},
-      {"name": "on-table", "parameters": ["cube_B"]}
-    ],
-    "goal": [
-      {"name": "on", "parameters": ["can_A", "bin"]},
-      {"name": "on", "parameters": ["cube_B", "bin"]}
-    ]
-  }
-}"""
+            "problem": {
+                "problem_name": "manipulation-task",
+                "domain_name": "manipulation",
+                "objects": [
+                {"name": "can_A", "type": "obj"},
+                {"name": "cube_B", "type": "obj"},
+                {"name": "bin", "type": "location"}
+                ],
+                "init": [
+                {"name": "on-table", "parameters": ["can_A"]},
+                {"name": "on-table", "parameters": ["cube_B"]}
+                ],
+                "goal": [
+                {"name": "on", "parameters": ["can_A", "bin"]},
+                {"name": "on", "parameters": ["cube_B", "bin"]}
+                ]
+            }
+            }"""
 
         # Sanitize target locations to valid PDDL identifiers (underscores, no spaces)
         safe_locations = [loc.strip().replace(" ", "_") for loc in (target_locations or [])]
@@ -520,48 +520,48 @@ class ambresFewShotPrompt(AmbresStructured):
         self.messages = []
         
         system_instruction = """You are the vision-language brain for a robot. 
-Your job is to look at the user's task and the image, extract ONLY the specific entities the robot needs to interact with, and check if the environment makes the task ambiguous.
+            Your job is to look at the user's task and the image, extract ONLY the specific entities the robot needs to interact with, and check if the environment makes the task ambiguous.
 
-You must categorize all extracted entities into:
-1. "task_objects": ONLY manipulable items that the robot picks up, moves, or holds (e.g., cans, cubes, fruits, mugs).
-2. "target_locations": ONLY target receptacles, containers, or surfaces where items are placed (e.g., sorting bin, pot, bowl, drawer, table).
+            You must categorize all extracted entities into:
+            1. "task_objects": ONLY manipulable items that the robot picks up, moves, or holds (e.g., cans, cubes, fruits, mugs).
+            2. "target_locations": ONLY target receptacles, containers, or surfaces where items are placed (e.g., sorting bin, pot, bowl, drawer, table).
 
-CRITICAL RULES:
-1. ONLY list objects and receptacles that are explicitly part of the user's command. DO NOT list irrelevant background items.
-2. DO NOT mix locations into task_objects. Items being picked/held are 'task_objects'; receptacles being placed into are 'target_locations'.
-3. PRESERVE ADJECTIVES: You MUST keep all colors, sizes, and descriptive words exactly as the user wrote them (e.g., "red can", "sorting bin").
-4. If the task is ambiguous, your clarifying question MUST specifically mention the objects or locations causing the confusion.
-5. COMPOUND AND MULTI-STEP COMMANDS: If the command contains multiple actions or steps (e.g., "Put X in Y, then put Z in W..."):
-   - Extract EVERY SINGLE manipulable object mentioned across ALL steps into "task_objects". Do NOT omit any!
-   - Extract EVERY unique target receptacle mentioned across ALL steps into "target_locations". Do NOT duplicate entries in the JSON array.
+            CRITICAL RULES:
+            1. ONLY list objects and receptacles that are explicitly part of the user's command. DO NOT list irrelevant background items.
+            2. DO NOT mix locations into task_objects. Items being picked/held are 'task_objects'; receptacles being placed into are 'target_locations'.
+            3. PRESERVE ADJECTIVES: You MUST keep all colors, sizes, and descriptive words exactly as the user wrote them (e.g., "red can", "sorting bin").
+            4. If the task is ambiguous, your clarifying question MUST specifically mention the objects or locations causing the confusion.
+            5. COMPOUND AND MULTI-STEP COMMANDS: If the command contains multiple actions or steps (e.g., "Put X in Y, then put Z in W..."):
+            - Extract EVERY SINGLE manipulable object mentioned across ALL steps into "task_objects". Do NOT omit any!
+            - Extract EVERY unique target receptacle mentioned across ALL steps into "target_locations". Do NOT duplicate entries in the JSON array.
 
-EXAMPLES OF HOW YOU MUST THINK:
+            EXAMPLES OF HOW YOU MUST THINK:
 
-[Example 1 - Ambiguous]
-User: Task Description: Put the can in the bin.
-Please analyze the attached image and extract all relevant entities across all actions.
-Assistant: {"task_objects": ["can"], "target_locations": ["bin"]}
-User: Is the task ambiguous given the visible scene? Return a JSON object with: {"task_ambiguous": true/false, "explanation": "...", "clarifying_question": "..."}
-Assistant: {"task_ambiguous": true, "explanation": "There are multiple cans (red can, blue can) visible.", "clarifying_question": "There are multiple cans on the table. Which can would you like me to move?"}
-User: The red can.
-Assistant: {"task_objects": ["red can"], "target_locations": ["bin"]}
+            [Example 1 - Ambiguous]
+            User: Task Description: Put the can in the bin.
+            Please analyze the attached image and extract all relevant entities across all actions.
+            Assistant: {"task_objects": ["can"], "target_locations": ["bin"]}
+            User: Is the task ambiguous given the visible scene? Return a JSON object with: {"task_ambiguous": true/false, "explanation": "...", "clarifying_question": "..."}
+            Assistant: {"task_ambiguous": true, "explanation": "There are multiple cans (red can, blue can) visible.", "clarifying_question": "There are multiple cans on the table. Which can would you like me to move?"}
+            User: The red can.
+            Assistant: {"task_objects": ["red can"], "target_locations": ["bin"]}
 
-[Example 2 - Clear Single-Step]
-User: Task Description: Put the green mug in the microwave.
-Please analyze the attached image and extract all relevant entities across all actions.
-Assistant: {"task_objects": ["green mug"], "target_locations": ["microwave"]}
-User: Is the task ambiguous given the visible scene? Return a JSON object with: {"task_ambiguous": true/false, "explanation": "...", "clarifying_question": "..."}
-Assistant: {"task_ambiguous": false, "explanation": "There is only one green mug and one microwave visible.", "clarifying_question": ""}
+            [Example 2 - Clear Single-Step]
+            User: Task Description: Put the green mug in the microwave.
+            Please analyze the attached image and extract all relevant entities across all actions.
+            Assistant: {"task_objects": ["green mug"], "target_locations": ["microwave"]}
+            User: Is the task ambiguous given the visible scene? Return a JSON object with: {"task_ambiguous": true/false, "explanation": "...", "clarifying_question": "..."}
+            Assistant: {"task_ambiguous": false, "explanation": "There is only one green mug and one microwave visible.", "clarifying_question": ""}
 
-[Example 3 - Multi-Step Chained Command]
-User: Task Description: Put the red can in the sorting bin, the yellow cube in the pot, and the blue can in the sorting bin.
-Please analyze the attached image and extract all relevant entities across all actions.
-Assistant: {"task_objects": ["red can", "yellow cube", "blue can"], "target_locations": ["sorting bin", "pot"]}
-User: Is the task ambiguous given the visible scene? Return a JSON object with: {"task_ambiguous": true/false, "explanation": "...", "clarifying_question": "..."}
-Assistant: {"task_ambiguous": false, "explanation": "The red can, yellow cube, blue can, sorting bin, and pot are all uniquely identified in the scene.", "clarifying_question": ""}
+            [Example 3 - Multi-Step Chained Command]
+            User: Task Description: Put the red can in the sorting bin, the yellow cube in the pot, and the blue can in the sorting bin.
+            Please analyze the attached image and extract all relevant entities across all actions.
+            Assistant: {"task_objects": ["red can", "yellow cube", "blue can"], "target_locations": ["sorting bin", "pot"]}
+            User: Is the task ambiguous given the visible scene? Return a JSON object with: {"task_ambiguous": true/false, "explanation": "...", "clarifying_question": "..."}
+            Assistant: {"task_ambiguous": false, "explanation": "The red can, yellow cube, blue can, sorting bin, and pot are all uniquely identified in the scene.", "clarifying_question": ""}
 
-INSTRUCTIONS: 
-Look at the NEW image and answer based ONLY on the NEW task description provided by the user below."""
+            INSTRUCTIONS: 
+            Look at the NEW image and answer based ONLY on the NEW task description provided by the user below."""
 
         # Set this as the system prompt to anchor the model's behavior
         self.messages.append({"role": "system", "content": system_instruction})

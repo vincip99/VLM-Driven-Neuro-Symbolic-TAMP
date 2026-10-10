@@ -94,7 +94,7 @@ PALETTE = {
 def capture_from_sim():
     """Spins up TaskSorting environment and captures top-down RGB + Instance Segmentation."""
     import robosuite as suite
-    print("🌍 Launching Robosuite TaskSorting environment to capture scene observation...")
+    print("Launching Robosuite TaskSorting environment to capture scene observation...")
     env = suite.make(
         env_name="TaskSorting",
         robots="Panda",
@@ -435,7 +435,7 @@ def main():
         task_prompt = "Put the can in the bin."
 
     print("\n" + "=" * 76)
-    print(" 🤖 VLM PERCEPTION & AMBIGUITY RESOLUTION TEST PIPELINE")
+    print("VLM PERCEPTION & AMBIGUITY RESOLUTION TEST PIPELINE")
     print("=" * 76)
     print(f" • Model:          {args.vlm}")
     print(f" • Initial Prompt: \"{task_prompt}\"")
@@ -447,7 +447,7 @@ def main():
     temp_image_path = os.path.join(exp_dir, "perception_input_camera.jpg")
 
     if args.image and os.path.exists(args.image):
-        print(f"🖼️ Loading provided input image: {args.image}")
+        print(f"Loading provided input image: {args.image}")
         raw_bgr = cv2.imread(args.image)
         raw_rgb = cv2.cvtColor(raw_bgr, cv2.COLOR_BGR2RGB)
         cv2.imwrite(temp_image_path, raw_bgr)
@@ -461,15 +461,15 @@ def main():
         raw_rgb, seg_img, id2name, scene_objects = capture_from_sim()
         raw_bgr = cv2.cvtColor(raw_rgb, cv2.COLOR_RGB2BGR)
         cv2.imwrite(temp_image_path, raw_bgr)
-        print(f"📸 Captured camera frame saved to: {temp_image_path}")
+        print(f"Captured camera frame saved to: {temp_image_path}")
 
     # Display detected scene objects in simulator
-    print(f"\n🌍 [Physical Scene Entities ({len(scene_objects)})]:")
+    print(f"\n[Physical Scene Entities ({len(scene_objects)})]:")
     for idx, name in enumerate(scene_objects, 1):
         print(f"   {idx}. {name}")
 
     # 2. Run VLM Perception & Ambres Loop
-    print(f"\n🧠 Querying VLM ({args.vlm}) for Visual Grounding & Ambiguity Analysis...")
+    print(f"\nQuerying VLM ({args.vlm}) for Visual Grounding & Ambiguity Analysis...")
     vision_pipeline = ambresFewShotPrompt(vlm_name=args.vlm)
     vision_pipeline.reset_chat()
 
@@ -488,7 +488,7 @@ def main():
         target_locations=result.get("target_locations", []),
     )
 
-    print("\n🔍 [Initial VLM Scene Grounding]:")
+    print("\n[Initial VLM Scene Grounding]:")
     print(f"   • Ambiguous Task?      {was_ambiguous}")
     print(f"   • Manipulable Objects: {scene_grounding.task_objects}")
     print(f"   • Target Locations:    {scene_grounding.target_locations}")
@@ -497,7 +497,7 @@ def main():
     if was_ambiguous:
         question = result.get("clarifying_question", "Could you please specify which object and location you mean?")
         print("\n" + "─" * 70)
-        print(" ❓ AMBIGUITY DETECTED BY VLM")
+        print(" AMBIGUITY DETECTED BY VLM")
         print("─" * 70)
         print(f" [Robot Asks]: {question}")
         print("─" * 70)
@@ -508,7 +508,7 @@ def main():
             user_response = "The red can into the sorting bin."
             print(f" [Default Used]: {user_response}")
 
-        print("\n🔄 Updating Visual Grounding with clarification...")
+        print("\nUpdating Visual Grounding with clarification...")
         result = vision_pipeline.handle_response(user_response)
         scene_grounding = SceneGrounding(
             task_objects=result.get("task_objects", []),
@@ -521,10 +521,10 @@ def main():
 
     # 4. Terminal Output of Grounded Symbols
     print("\n" + "=" * 76)
-    print(" 🎯 FINAL GROUNDED SYMBOLS OUTPUT (SceneGrounding Schema)")
+    print("FINAL GROUNDED SYMBOLS OUTPUT (SceneGrounding Schema)")
     print("=" * 76)
 
-    print("\n📦 MANIPULABLE OBJECTS (PDDL Type: 'obj'):")
+    print("\nMANIPULABLE OBJECTS (PDDL Type: 'obj'):")
     if final_objects:
         for idx, name in enumerate(final_objects, 1):
             pddl_symbol = name.strip().replace(" ", "_")
@@ -532,7 +532,7 @@ def main():
     else:
         print("   (None identified)")
 
-    print("\n📍 TARGET RECEPTACLES / LOCATIONS (PDDL Type: 'location'):")
+    print("\nTARGET RECEPTACLES / LOCATIONS (PDDL Type: 'location'):")
     if final_locations:
         for idx, name in enumerate(final_locations, 1):
             pddl_symbol = name.strip().replace(" ", "_")
@@ -542,7 +542,7 @@ def main():
     print("=" * 76)
 
     # 5. Image Segmentation & Recognition Visualization
-    print("\n🎨 Generating Segmentation & Recognition Visual Dashboard...")
+    print("\nGenerating Segmentation & Recognition Visual Dashboard...")
     seg_bgr = create_segmentation_colormap(seg_img, id2name)
     instances = extract_instances_from_segmentation(seg_img, id2name)
     rec_bgr = draw_recognition_overlay(raw_bgr, instances, final_objects, final_locations)
@@ -558,7 +558,7 @@ def main():
     save_path = os.path.abspath(args.save_path)
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
     cv2.imwrite(save_path, dashboard)
-    print(f"💾 Visual perception dashboard saved to: \033[96m{save_path}\033[0m")
+    print(f"Visual perception dashboard saved to: \033[96m{save_path}\033[0m")
 
     # Also automatically save presentation-ready assets (both PDF and PNG) to Docs/pictures/
     docs_pic_dir = os.path.join(repo_root, "Docs", "pictures")
@@ -590,7 +590,7 @@ def main():
     Image.fromarray(cv2.cvtColor(dashboard, cv2.COLOR_BGR2RGB)).save(
         os.path.join(docs_pic_dir, "perception_segmentation_recognition.pdf"), "PDF", resolution=150.0
     )
-    print(f"🖼️  Presentation figure updated: \033[96m{os.path.join(docs_pic_dir, 'perception_recognition_grounding.pdf')}\033[0m")
+    print(f"Presentation figure updated: \033[96m{os.path.join(docs_pic_dir, 'perception_recognition_grounding.pdf')}\033[0m")
 
     # Interactive GUI display
     if not args.no_gui:
@@ -600,11 +600,11 @@ def main():
             cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
             cv2.resizeWindow(window_name, 1440, 520)
             cv2.imshow(window_name, dashboard)
-            print("\n👀 Showing visualization window. Press any key or 'q' to close...")
+            print("\nShowing visualization window. Press any key or 'q' to close...")
             cv2.waitKey(0)
             cv2.destroyAllWindows()
         else:
-            print("ℹ️ Headless environment detected (no $DISPLAY); skipped live window.")
+            print("Headless environment detected (no $DISPLAY); skipped live window.")
 
     print("\n✨ Perception & Ambiguity Resolution test completed successfully.\n")
 

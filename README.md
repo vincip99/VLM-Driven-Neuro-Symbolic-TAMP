@@ -1,9 +1,9 @@
 # VLM-Driven Neuro-Symbolic Task and Motion Planning with Ambiguity Resolution
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/release/python-380/)
-[![Robosuite 1.5.1](https://img.shields.io/badge/robosuite-1.5.1-orange.svg)](https://robosuite.ai/)
 [![Planner Fast-Downward](https://img.shields.io/badge/planner-Fast--Downward-green.svg)](https://www.fast-downward.org/)
 [![Executive py_trees](https://img.shields.io/badge/executive-py__trees-red.svg)](https://py-trees.readthedocs.io/)
+[![Robosuite 1.5.1](https://img.shields.io/badge/robosuite-1.5.1-orange.svg)](https://robosuite.ai/)
 
 ---
 
